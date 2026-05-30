@@ -328,7 +328,12 @@ export class Game {
         if (this._hitTest(px + 16 * s + btnW, btnY1, btnW, btnH)) {
           if (this.backpackSlotSelected < this.inventory.items.length) {
             const id = this.inventory.items[this.backpackSlotSelected].id;
-            this.inventory.addToAquarium(id);
+            const def = COLLECTIBLES[id];
+            if (!def?.alive) {
+              this.shop.showMessage('只有活体生物才能放入水族箱');
+            } else if (this.inventory.addToAquarium(id)) {
+              this.shop.showMessage(`已将 ${def.name} 放入水族箱`);
+            }
           }
         }
         if (this._hitTest(px + 12 * s, btnY2, btnW, btnH)) {
@@ -532,8 +537,14 @@ export class Game {
     }
     if (this.input.wasPressed('KeyA') && this.backpackSlotSelected < this.inventory.items.length) {
       const itemId = this.inventory.items[this.backpackSlotSelected].id;
-      const success = this.inventory.addToAquarium(itemId);
-      if (success) this.shop.showMessage(`已将 ${COLLECTIBLES[itemId]?.name || itemId} 放入水族箱`);
+      const def = COLLECTIBLES[itemId];
+      if (!def?.alive) {
+        this.shop.showMessage('只有活体生物才能放入水族箱');
+      } else {
+        const success = this.inventory.addToAquarium(itemId);
+        if (success) this.shop.showMessage(`已将 ${def.name} 放入水族箱`);
+        else this.shop.showMessage('放入失败');
+      }
     }
     if (this.input.wasPressed('KeyM') && this.backpackSlotSelected < this.inventory.items.length) {
       const itemId = this.inventory.items[this.backpackSlotSelected].id;

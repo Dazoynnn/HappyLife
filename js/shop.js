@@ -445,6 +445,12 @@ export class ShopScene {
       'abalone': { name: '鲍鱼', value: 55, category: 'shell', alive: true },
       'seaglass': { name: '海玻璃', value: 10, category: 'treasure' },
       'crab_rock': { name: '石蟹', value: 22, category: 'crustacean', alive: true },
+      'seahorse': { name: '海马', value: 40, category: 'fish', alive: true },
+      'seadragon': { name: '海龙', value: 70, category: 'fish', alive: true },
+      'goby': { name: '虾虎鱼', value: 15, category: 'fish', alive: true },
+      'nudibranch': { name: '海蛞蝓', value: 35, category: 'living', alive: true },
+      'sand_dollar': { name: '沙钱', value: 12, category: 'shell' },
+      'horseshoe_crab': { name: '鲎', value: 90, category: 'crustacean', alive: true },
     };
     return defs[id] || null;
   }
