@@ -87,10 +87,11 @@ export class Collectible {
 }
 
 export class CollectibleManager {
-  constructor(beachMap) {
+  constructor(beachMap, inventory = null) {
     this.beachMap = beachMap;
     this.items = [];
     this.spawned = false;
+    this._inventory = inventory;
   }
 
   // 每次退潮时刷新收集物
@@ -111,7 +112,15 @@ export class CollectibleManager {
 
     for (const config of spawnConfigs) {
       const baseCount = config.count[0] + Math.floor(Math.random() * (config.count[1] - config.count[0] + 1));
-      const count = Math.floor(baseCount * moonEffect);
+      let count = Math.floor(baseCount * moonEffect);
+
+      // 永久遗产加成
+      if (this._inventory?.hasLegacy?.('shell_mastery')) {
+        const shellIds = ['shell_fan', 'shell_conch', 'clam'];
+        if (shellIds.includes(config.id)) {
+          count = Math.floor(count * 1.25);
+        }
+      }
 
       for (let i = 0; i < count; i++) {
         // 在对应 biome 中找合法位置

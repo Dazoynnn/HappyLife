@@ -10,6 +10,9 @@ export class Inventory {
     this.gold = 50;      // 起始金币
     this.aquarium = [];  // 水族箱生物: [{ id, name, output, count }]
     this.museum = [];    // 已捐赠: [itemId, ...]
+    this.legacies = [];  // 已获得的永久遗产 id 列表
+    this.seaPearlFragments = 0; // 海灵珠碎片
+    this.seaPearls = 0;        // 海灵珠数量
   }
 
   get currentWeight() {
@@ -130,7 +133,41 @@ export class Inventory {
     for (const a of this.aquarium) {
       fragments += a.output * a.count;
     }
+    this.seaPearlFragments += fragments;
     return Math.floor(fragments);
+  }
+
+  /** 威望重置 — 致伟大的海洋 */
+  prestige(sectionId) {
+    const legacyMap = {
+      shell: 'shell_mastery',  // 贝类精通
+    };
+    const legacyId = legacyMap[sectionId];
+    if (!legacyId || this.legacies.includes(legacyId)) return null;
+
+    const sectionRequirements = { shell: 5 };
+    const required = sectionRequirements[sectionId] || 0;
+    if (this.museum.length < required) return null;
+
+    this.legacies.push(legacyId);
+    // 重置
+    this.items = [];
+    this.gold = 0;
+    this.aquarium = [];
+    this.seaPearlFragments = 0;
+    return legacyId;
+  }
+
+  hasLegacy(id) {
+    return this.legacies.includes(id);
+  }
+
+  /** 海灵珠合成 */
+  synthesizePearl() {
+    if (this.seaPearlFragments < 10) return false;
+    this.seaPearlFragments -= 10;
+    this.seaPearls++;
+    return true;
   }
 
   get museumCount() {

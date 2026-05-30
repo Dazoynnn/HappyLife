@@ -293,7 +293,14 @@ export class ShopScene {
     ctx.fillStyle = COLORS.ui_dark;
     ctx.font = `${5 * s}px monospace`;
     ctx.textAlign = 'left';
-    ctx.fillText(`海灵珠碎片: ${frags.toFixed(1)} (10碎片=1海灵珠)`, px + 12 * s, py + ph - 16 * s);
+    ctx.fillText(`海灵珠碎片: ${this.inventory.seaPearlFragments.toFixed(1)} (10碎片=1海灵珠)`, px + 12 * s, py + ph - 36 * s);
+
+    const canSynth = this.inventory.seaPearlFragments >= 10;
+    ctx.fillStyle = canSynth ? COLORS.gold : '#888';
+    ctx.fillText(`海灵珠: ${this.inventory.seaPearls}颗 [F]合成`, px + 12 * s, py + ph - 20 * s);
+    if (canSynth) {
+      this._synthBtn = { x: px + 12 * s, y: py + ph - 26 * s, w: 180 * s, h: 14 * s };
+    }
   }
 
   _drawMuseumTab(ctx, px, py, pw, ph) {
@@ -341,11 +348,21 @@ export class ShopScene {
     ctx.fillText(`展区进度: ${donatedCount}/${exhibits.length}`, px + 12 * s, py + ph - 40 * s);
     ctx.fillText('[D]捐赠选中物品', px + 12 * s, py + ph - 20 * s);
 
-    if (donatedCount === exhibits.length) {
-      ctx.fillStyle = COLORS.gold;
-      ctx.font = `${7 * s}px monospace`;
+    if (donatedCount === exhibits.length && !this.inventory.hasLegacy('shell_mastery')) {
+      ctx.fillStyle = '#c04030';
+      const btnX = px + pw / 2 - 60 * s;
+      const btnY = py + ph - 56 * s;
+      ctx.fillRect(btnX, btnY, 120 * s, 28 * s);
+      ctx.fillStyle = '#f5f0e0';
+      ctx.font = `bold ${6 * s}px monospace`;
       ctx.textAlign = 'center';
-      ctx.fillText('展区完成！可以触发"致伟大的海洋"', px + pw / 2, py + ph - 50 * s);
+      ctx.fillText('致伟大的海洋', px + pw / 2, btnY + 18 * s);
+      this._museumPrestigeBtn = { x: btnX, y: btnY, w: 120 * s, h: 28 * s };
+    } else if (this.inventory.hasLegacy('shell_mastery')) {
+      ctx.fillStyle = COLORS.gold;
+      ctx.font = `${6 * s}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText('永久遗产: 贝类精通 (贝壳产出+25%)', px + pw / 2, py + ph - 50 * s);
     }
   }
 

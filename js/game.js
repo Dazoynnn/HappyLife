@@ -91,7 +91,7 @@ export class Game {
     this.player.maxWeight = this.inventory.maxWeight;
 
     // 初始化收集物
-    this.collectibleMgr = new CollectibleManager(this.beachMap);
+    this.collectibleMgr = new CollectibleManager(this.beachMap, this.inventory);
     this.collectibleMgr.spawnAll(moonEffect);
 
     // 初始化事件
@@ -561,6 +561,32 @@ export class Game {
             return;
           }
         }
+        // 威望按钮
+        const donatedCount = exhibits.filter(e => this.inventory.museum.includes(e)).length;
+        if (donatedCount >= exhibits.length && !this.inventory.hasLegacy('shell_mastery')) {
+          const btnX = px + pw/2 - 60*s, btnY = py + 230*s;
+          if (this._hitTest(btnX, btnY, 120*s, 28*s)) {
+            const legacy = this.inventory.prestige('shell');
+            if (legacy) {
+              this.shop.showMessage('致伟大的海洋！获得永久遗产：贝类精通');
+            }
+            return;
+          }
+        }
+      }
+
+      if (this.shop.tab === 'aquarium') {
+        // 海灵珠合成按钮
+        const canSynth = this.inventory.seaPearlFragments >= 10;
+        if (canSynth && this.shop._synthBtn) {
+          const sb = this.shop._synthBtn;
+          if (this._hitTest(sb.x, sb.y, sb.w, sb.h)) {
+            if (this.inventory.synthesizePearl()) {
+              this.shop.showMessage('合成了一颗海灵珠！');
+            }
+            return;
+          }
+        }
       }
     }
 
@@ -596,6 +622,21 @@ export class Game {
       if (this.input.wasPressed('Digit3')) this.inventory.donateItem('clam');
       if (this.input.wasPressed('Digit4')) this.inventory.donateItem('starfish');
       if (this.input.wasPressed('Digit5')) this.inventory.donateItem('pearl');
+      if (this.input.wasPressed('KeyP')) {
+        const legacy = this.inventory.prestige('shell');
+        if (legacy) this.shop.showMessage('致伟大的海洋！获得永久遗产：贝类精通');
+        else this.shop.showMessage('展区未完成或已获得此遗产');
+      }
+    }
+
+    if (this.shop.tab === 'aquarium') {
+      if (this.input.wasPressed('KeyF')) {
+        if (this.inventory.synthesizePearl()) {
+          this.shop.showMessage('合成了一颗海灵珠！');
+        } else {
+          this.shop.showMessage('碎片不足（需要10个）');
+        }
+      }
     }
 
     if (this.input.wasPressed('Space') || this.input.wasPressed('Enter')) {
