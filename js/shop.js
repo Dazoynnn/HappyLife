@@ -317,70 +317,79 @@ export class ShopScene {
 
   _drawMuseumTab(ctx, px, py, pw, ph) {
     const s = SCALE;
+    // 展区切换
+    if (!this._museumHall) this._museumHall = 'shell';
+    const halls = [
+      { id: 'shell', name: '贝类馆', exhibits: ['shell_fan','shell_conch','clam','starfish','pearl'],
+        names: ['扇贝壳','海螺壳','蛤蜊','海星','珍珠'], legacy: 'shell_mastery', legacyDesc: '贝类精通 (贝壳+25%)' },
+      { id: 'crustacean', name: '甲壳馆', exhibits: ['crab_sand','crab_rock','urchin','chiton','horseshoe_crab'],
+        names: ['沙蟹','石蟹','海胆','石鳖','鲎'], legacy: 'crustacean_immunity', legacyDesc: '甲壳免疫 (不受螃蟹/海胆伤害)' },
+      { id: 'fish', name: '鱼类馆', exhibits: ['seahorse','seadragon','goby','octopus_sm','nudibranch'],
+        names: ['海马','海龙','虾虎鱼','小章鱼','海蛞蝓'], legacy: 'fish_mastery', legacyDesc: '鱼类精通 (待定)' },
+    ];
+    const hall = halls.find(h => h.id === this._museumHall) || halls[0];
+
     ctx.fillStyle = COLORS.ui_dark;
     ctx.font = `bold ${7 * s}px monospace`;
-    ctx.textAlign = 'left';
-    ctx.fillText('博物馆 — 贝类馆', px + 12 * s, py + 16 * s);
+    ctx.textAlign = 'center';
+    const hallIdx = halls.findIndex(h => h.id === this._museumHall);
+    ctx.fillText(`◀ 博物馆 — ${hall.name} ▶`, px + pw / 2, py + 16 * s);
 
     // 展位
-    const exhibits = ['shell_fan', 'shell_conch', 'clam', 'starfish', 'pearl'];
-    const exhibitNames = ['扇贝壳', '海螺壳', '蛤蜊', '海星', '珍珠'];
     const gridX = px + 20 * s;
     const gridY = py + 32 * s;
 
-    for (let i = 0; i < exhibits.length; i++) {
+    for (let i = 0; i < hall.exhibits.length; i++) {
       const ex = gridX + i * 140 * s;
       const ey = gridY;
-      const donated = this.inventory.museum.includes(exhibits[i]);
+      const donated = this.inventory.museum.includes(hall.exhibits[i]);
 
       ctx.fillStyle = donated ? '#e8e0d0' : '#aaa';
-      ctx.fillRect(ex, ey, 120 * s, 80 * s);
+      ctx.fillRect(ex, ey, 120 * s, 70 * s);
       ctx.strokeStyle = donated ? COLORS.gold : '#888';
       ctx.lineWidth = donated ? 2 : 1;
-      ctx.strokeRect(ex, ey, 120 * s, 80 * s);
+      ctx.strokeRect(ex, ey, 120 * s, 70 * s);
 
       ctx.fillStyle = COLORS.ui_dark;
       ctx.font = `${5 * s}px monospace`;
       ctx.textAlign = 'center';
-      ctx.fillText(donated ? exhibitNames[i] : '???', ex + 60 * s, ey + 40 * s);
+      ctx.fillText(donated ? hall.names[i] : '???', ex + 60 * s, ey + 30 * s);
 
-      if (!donated && this.inventory.items.some(it => it.id === exhibits[i])) {
-        // 可捐赠提示
+      if (!donated && this.inventory.items.some(it => it.id === hall.exhibits[i])) {
         ctx.fillStyle = COLORS.gold;
         ctx.font = `${4 * s}px monospace`;
-        ctx.fillText('可捐赠', ex + 60 * s, ey + 60 * s);
+        ctx.fillText('可捐赠', ex + 60 * s, ey + 50 * s);
       }
     }
 
     // 进度
-    const donatedCount = exhibits.filter(e => this.inventory.museum.includes(e)).length;
+    const donatedCount = hall.exhibits.filter(e => this.inventory.museum.includes(e)).length;
     ctx.fillStyle = COLORS.ui_dark;
-    ctx.font = `${6 * s}px monospace`;
+    ctx.font = `${5 * s}px monospace`;
     ctx.textAlign = 'left';
-    ctx.fillText(`展区进度: ${donatedCount}/${exhibits.length}`, px + 12 * s, py + ph - 40 * s);
-    ctx.fillText('[D]捐赠选中物品', px + 12 * s, py + ph - 20 * s);
+    ctx.fillText(`进度: ${donatedCount}/${hall.exhibits.length}  [← →]切换展区`, px + 12 * s, py + ph - 40 * s);
 
-    if (donatedCount === exhibits.length && !this.inventory.hasLegacy('shell_mastery')) {
+    if (donatedCount === hall.exhibits.length && !this.inventory.hasLegacy(hall.legacy)) {
       ctx.fillStyle = '#c04030';
       const btnX = px + pw / 2 - 60 * s;
-      const btnY = py + ph - 56 * s;
-      ctx.fillRect(btnX, btnY, 120 * s, 28 * s);
+      const btnY = py + ph - 50 * s;
+      ctx.fillRect(btnX, btnY, 120 * s, 24 * s);
       ctx.fillStyle = '#f5f0e0';
-      ctx.font = `bold ${6 * s}px monospace`;
+      ctx.font = `bold ${5 * s}px monospace`;
       ctx.textAlign = 'center';
-      ctx.fillText('致伟大的海洋', px + pw / 2, btnY + 18 * s);
-      this._museumPrestigeBtn = { x: btnX, y: btnY, w: 120 * s, h: 28 * s };
-    } else if (this.inventory.hasLegacy('shell_mastery')) {
+      ctx.fillText('致伟大的海洋', px + pw / 2, btnY + 16 * s);
+      this._museumPrestigeBtn = { x: btnX, y: btnY, w: 120 * s, h: 24 * s };
+      this._museumPrestigeHall = hall.id;
+    } else if (this.inventory.hasLegacy(hall.legacy)) {
       ctx.fillStyle = COLORS.gold;
-      ctx.font = `${6 * s}px monospace`;
+      ctx.font = `${5 * s}px monospace`;
       ctx.textAlign = 'center';
-      ctx.fillText('永久遗产: 贝类精通 (贝壳产出+25%)', px + pw / 2, py + ph - 50 * s);
+      ctx.fillText(`永久遗产: ${hall.legacyDesc}`, px + pw / 2, py + ph - 50 * s);
     } else {
-      // 显示灰色进度提示
       ctx.fillStyle = '#888';
       ctx.font = `${5 * s}px monospace`;
       ctx.textAlign = 'center';
-      ctx.fillText(`集齐5件展品可触发「致伟大的海洋」(${donatedCount}/5)`, px + pw / 2, py + ph - 50 * s);
+      ctx.fillText(`集齐5件触发「致伟大的海洋」(${donatedCount}/5)`, px + pw / 2, py + ph - 50 * s);
     }
   }
 

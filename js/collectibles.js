@@ -95,7 +95,7 @@ export class CollectibleManager {
   }
 
   // 每次退潮时刷新收集物
-  spawnAll(moonEffect = 1.0) {
+  spawnAll(moonEffect = 1.0, weatherKey = 'sunny') {
     this.items = [];
     this.spawned = true;
 
@@ -120,6 +120,14 @@ export class CollectibleManager {
     for (const config of spawnConfigs) {
       const baseCount = config.count[0] + Math.floor(Math.random() * (config.count[1] - config.count[0] + 1));
       let count = Math.floor(baseCount * moonEffect);
+
+      // 天气加成
+      if (weatherKey === 'storm') {
+        const rareIds = ['pearl', 'abalone', 'octopus_sm', 'seadragon', 'horseshoe_crab', 'starfish', 'coin_ancient'];
+        if (rareIds.includes(config.id)) {
+          count = Math.floor(count * 2.0);
+        }
+      }
 
       // 永久遗产加成
       if (this._inventory?.hasLegacy?.('shell_mastery')) {

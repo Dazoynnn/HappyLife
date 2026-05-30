@@ -173,8 +173,12 @@ export class Player {
 
   // 受到伤害
   takeDamage(amount) {
+    // 甲壳免疫遗产 — 螃蟹/海胆攻击免疫
+    if (this.inventory?.hasLegacy?.('crustacean_immunity')) {
+      amount = 0;
+    }
     // 竹夹免疫螃蟹/海胆伤害
-    if (this.inventory?.equippedTool === 'tongs_bamboo') {
+    if (amount > 0 && this.inventory?.equippedTool === 'tongs_bamboo') {
       amount = 0;
     }
     // 手套减伤

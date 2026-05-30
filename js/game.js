@@ -99,7 +99,7 @@ export class Game {
 
     // 初始化收集物
     this.collectibleMgr = new CollectibleManager(this.beachMap, this.inventory);
-    this.collectibleMgr.spawnAll(moonEffect);
+    this.collectibleMgr.spawnAll(moonEffect, this.currentWeather);
 
     // 初始化事件
     this.shipwreckEvent = new ShipwreckEvent();
@@ -410,7 +410,17 @@ export class Game {
 
     // 玩家更新
     if (!this.player.isCollecting) {
+      const prevStuck = this.player._mudStuck || 0;
       this.player.update(dt, this.input, this.isRunning, this.tide.level, this.beachMap);
+      // 暗坑视觉反馈
+      if (prevStuck <= 0 && this.player._mudStuck > 0) {
+        this.renderer.triggerShake(2);
+        this.effects.addFloatingText(this.player.x, this.player.y - 5, '陷入淤泥!', '#8a7a5a', 1.5);
+      }
+      // 苔藓滑倒反馈
+      if (this.player._slipStun > 0 && this.player._slipStun + dt >= 0.6) {
+        this.effects.addFloatingText(this.player.x, this.player.y - 8, '滑倒了!', '#c04030', 1);
+      }
     }
 
     // 收集物更新
@@ -588,12 +598,19 @@ export class Game {
       }
 
       if (this.shop.tab === 'museum') {
-        // 展位 (5个, 每 140*s 宽, 从 gridX 开始)
-        const exhibits = ['shell_fan','shell_conch','clam','starfish','pearl'];
+        // 动态展区
+        const hallDefs = {
+          shell: { exhibits: ['shell_fan','shell_conch','clam','starfish','pearl'], legacy: 'shell_mastery' },
+          crustacean: { exhibits: ['crab_sand','crab_rock','urchin','chiton','horseshoe_crab'], legacy: 'crustacean_immunity' },
+          fish: { exhibits: ['seahorse','seadragon','goby','octopus_sm','nudibranch'], legacy: 'fish_mastery' },
+        };
+        const hallId = this.shop._museumHall || 'shell';
+        const hd = hallDefs[hallId];
+        const exhibits = hd.exhibits;
         const gridX = px + 20 * s, gridY = py + 32 * s;
         for (let i = 0; i < exhibits.length; i++) {
           const ex = gridX + i * 140 * s;
-          if (this._hitTest(ex, gridY, 120*s, 80*s)) {
+          if (this._hitTest(ex, gridY, 120*s, 70*s)) {
             if (this.inventory.donateItem(exhibits[i])) {
               this.shop.showMessage(`已捐赠！`);
             }
@@ -602,15 +619,26 @@ export class Game {
         }
         // 威望按钮
         const donatedCount = exhibits.filter(e => this.inventory.museum.includes(e)).length;
-        if (donatedCount >= exhibits.length && !this.inventory.hasLegacy('shell_mastery')) {
-          const btnX = px + pw/2 - 60*s, btnY = py + 230*s;
-          if (this._hitTest(btnX, btnY, 120*s, 28*s)) {
-            const legacy = this.inventory.prestige('shell');
+        if (donatedCount >= exhibits.length && !this.inventory.hasLegacy(hd.legacy)) {
+          const btnX = px + pw/2 - 60*s, btnY = py + 190*s;
+          if (this._hitTest(btnX, btnY, 120*s, 24*s)) {
+            const legacy = this.inventory.prestige(hallId);
             if (legacy) {
-              this.shop.showMessage('致伟大的海洋！获得永久遗产：贝类精通');
+              this.shop.showMessage('致伟大的海洋！获得永久遗产！');
             }
             return;
           }
+        }
+        // 点击 ◀ ▶ 切换展区
+        if (this._hitTest(px + 20*s, py + 8*s, 30*s, 20*s)) {
+          const halls = ['shell','crustacean','fish'];
+          const idx = halls.indexOf(hallId);
+          this.shop._museumHall = halls[(idx - 1 + 3) % 3];
+        }
+        if (this._hitTest(px + pw - 50*s, py + 8*s, 30*s, 20*s)) {
+          const halls = ['shell','crustacean','fish'];
+          const idx = halls.indexOf(hallId);
+          this.shop._museumHall = halls[(idx + 1) % 3];
         }
       }
 
@@ -679,14 +707,33 @@ export class Game {
     }
 
     if (this.shop.tab === 'museum') {
-      if (this.input.wasPressed('Digit1')) this.inventory.donateItem('shell_fan');
-      if (this.input.wasPressed('Digit2')) this.inventory.donateItem('shell_conch');
-      if (this.input.wasPressed('Digit3')) this.inventory.donateItem('clam');
-      if (this.input.wasPressed('Digit4')) this.inventory.donateItem('starfish');
-      if (this.input.wasPressed('Digit5')) this.inventory.donateItem('pearl');
+      // 展区切换
+      if (this.input.wasPressed('ArrowLeft')) {
+        const halls = ['shell','crustacean','fish'];
+        const idx = halls.indexOf(this.shop._museumHall || 'shell');
+        this.shop._museumHall = halls[(idx - 1 + 3) % 3];
+      }
+      if (this.input.wasPressed('ArrowRight')) {
+        const halls = ['shell','crustacean','fish'];
+        const idx = halls.indexOf(this.shop._museumHall || 'shell');
+        this.shop._museumHall = halls[(idx + 1) % 3];
+      }
+      // 捐赠快捷键（根据当前展区）
+      const hallExhibits = {
+        shell: ['shell_fan','shell_conch','clam','starfish','pearl'],
+        crustacean: ['crab_sand','crab_rock','urchin','chiton','horseshoe_crab'],
+        fish: ['seahorse','seadragon','goby','octopus_sm','nudibranch'],
+      };
+      const curExhibits = hallExhibits[this.shop._museumHall || 'shell'] || [];
+      if (this.input.wasPressed('Digit1') && curExhibits[0]) this.inventory.donateItem(curExhibits[0]);
+      if (this.input.wasPressed('Digit2') && curExhibits[1]) this.inventory.donateItem(curExhibits[1]);
+      if (this.input.wasPressed('Digit3') && curExhibits[2]) this.inventory.donateItem(curExhibits[2]);
+      if (this.input.wasPressed('Digit4') && curExhibits[3]) this.inventory.donateItem(curExhibits[3]);
+      if (this.input.wasPressed('Digit5') && curExhibits[4]) this.inventory.donateItem(curExhibits[4]);
       if (this.input.wasPressed('KeyP')) {
-        const legacy = this.inventory.prestige('shell');
-        if (legacy) this.shop.showMessage('致伟大的海洋！获得永久遗产：贝类精通');
+        const hallId = this.shop._museumHall || 'shell';
+        const legacy = this.inventory.prestige(hallId);
+        if (legacy) this.shop.showMessage('致伟大的海洋！获得永久遗产！');
         else this.shop.showMessage('展区未完成或已获得此遗产');
       }
     }
