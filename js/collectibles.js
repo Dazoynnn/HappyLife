@@ -108,6 +108,13 @@ export class CollectibleManager {
       { id: 'starfish', biomes: ['tide_pool', 'reef_zone'], count: [1, 3] },
       { id: 'coin_ancient', biomes: ['dock_ruins'], count: [1, 3] },
       { id: 'pearl', biomes: ['reef_zone'], count: [0, 1] },
+      // 黑礁岛特有
+      { id: 'urchin', biomes: ['reef_zone', 'barnacle_rock'], count: [2, 5] },
+      { id: 'chiton', biomes: ['barnacle_rock', 'moss_rock'], count: [2, 6] },
+      { id: 'octopus_sm', biomes: ['tide_pool', 'deep_pool'], count: [0, 3] },
+      { id: 'abalone', biomes: ['deep_pool', 'barnacle_rock'], count: [0, 2] },
+      { id: 'seaglass', biomes: ['sand_shallow', 'tidal_flat', 'black_reef_shore'], count: [2, 6] },
+      { id: 'crab_rock', biomes: ['barnacle_rock', 'moss_rock'], count: [1, 4] },
     ];
 
     for (const config of spawnConfigs) {

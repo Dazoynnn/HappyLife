@@ -623,6 +623,12 @@ export function getCollectibleSprite(itemId, state = 'default', frame = 0) {
     case 'starfish': return genStarfish();
     case 'coin_ancient': return genCoinAncient();
     case 'pearl': return genPearl();
+    case 'urchin': return genUrchin();
+    case 'chiton': return genChiton();
+    case 'octopus_sm': return genOctopusSm();
+    case 'abalone': return genAbalone();
+    case 'seaglass': return genSeaglass(state === 'variant' ? frame : 0);
+    case 'crab_rock': return genCrabRock();
     default: return null;
   }
 }
@@ -709,6 +715,234 @@ function genTileTidePool() {
   return c;
 }
 
+// === 黑礁岛 tile 精灵 ===
+function genTileRockBarnacle(variant) {
+  const key = `rock_barnacle_${variant}`;
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(TILE_SIZE, TILE_SIZE);
+  const ctx = c.getContext('2d');
+  // 基底礁石
+  ctx.fillStyle = COLORS.rock;
+  ctx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
+  ctx.fillStyle = COLORS.rock_dark;
+  ctx.fillRect(2, 4, 4, 1); // 裂缝
+  ctx.fillStyle = COLORS.rock_light;
+  px(ctx, 0, 0, COLORS.rock_light);
+  // 藤壶群
+  ctx.fillStyle = '#d8d8d0';
+  for (let i = 0; i < 5; i++) {
+    const bx = 3 + (i * 3) % 13;
+    const by = 2 + i * 2;
+    ctx.beginPath();
+    ctx.arc(bx, by, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+    // 藤壶中心小点
+    px(ctx, bx, by, '#888');
+  }
+  cache.set(key, c);
+  return c;
+}
+
+function genTileRockMoss() {
+  const key = 'rock_moss';
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(TILE_SIZE, TILE_SIZE);
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = COLORS.rock;
+  ctx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
+  ctx.fillStyle = COLORS.rock_dark;
+  ctx.fillRect(1, 8, 6, 1);
+  // 苔藓覆盖
+  ctx.fillStyle = COLORS.moss;
+  ctx.fillRect(0, 0, TILE_SIZE, 3);
+  ctx.fillRect(2, 3, 4, 2);
+  ctx.fillRect(8, 0, 3, 2);
+  ctx.fillStyle = '#4a6a2a';
+  px(ctx, 5, 1, '#4a6a2a');
+  px(ctx, 11, 1, '#4a6a2a');
+  ctx.fillStyle = '#6a8a4a';
+  px(ctx, 3, 0, '#6a8a4a');
+  px(ctx, 9, 2, '#6a8a4a');
+  cache.set(key, c);
+  return c;
+}
+
+// === 黑礁岛收集物精灵 ===
+function genUrchin() {
+  const key = 'urchin';
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(14, 14);
+  const ctx = c.getContext('2d');
+  // 黑色圆体
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath();
+  ctx.arc(7, 7, 5, 0, Math.PI * 2);
+  ctx.fill();
+  // 尖刺（辐射状短线）
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 1;
+  for (let a = 0; a < Math.PI * 2; a += Math.PI / 6) {
+    ctx.beginPath();
+    ctx.moveTo(7 + Math.cos(a) * 5, 7 + Math.sin(a) * 5);
+    ctx.lineTo(7 + Math.cos(a) * 7, 7 + Math.sin(a) * 7);
+    ctx.stroke();
+  }
+  // 高光
+  px(ctx, 5, 5, '#555');
+  cache.set(key, c);
+  return c;
+}
+
+function genChiton() {
+  const key = 'chiton';
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(10, 8);
+  const ctx = c.getContext('2d');
+  // 椭圆形扁平身体
+  ctx.fillStyle = '#7a6a5a';
+  ctx.beginPath();
+  ctx.ellipse(5, 4, 5, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // 背板分段线
+  ctx.strokeStyle = '#5a4a3a';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.moveTo(3 + i * 2, 2);
+    ctx.lineTo(3 + i * 2, 6);
+    ctx.stroke();
+  }
+  // 边缘
+  ctx.strokeStyle = '#8a7a6a';
+  ctx.beginPath();
+  ctx.ellipse(5, 4, 5, 3, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  cache.set(key, c);
+  return c;
+}
+
+function genOctopusSm() {
+  const key = 'octopus_sm';
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(16, 16);
+  const ctx = c.getContext('2d');
+  // 圆头
+  ctx.fillStyle = '#c87060';
+  ctx.beginPath();
+  ctx.arc(8, 5, 5, 0, Math.PI * 2);
+  ctx.fill();
+  // 眼睛
+  ctx.fillStyle = '#fff';
+  px(ctx, 6, 3, '#fff'); px(ctx, 10, 3, '#fff');
+  px(ctx, 6, 3, '#1a1a1a'); // 瞳孔
+  // 8条触手
+  ctx.strokeStyle = '#c87060';
+  ctx.lineWidth = 1.5;
+  for (let i = 0; i < 8; i++) {
+    const a = -Math.PI / 2 + (i - 3.5) * 0.3;
+    ctx.beginPath();
+    ctx.moveTo(8 + Math.cos(a) * 5, 5 + Math.sin(a) * 4);
+    ctx.quadraticCurveTo(
+      8 + Math.cos(a) * 8, 8 + Math.sin(a) * 8,
+      8 + Math.cos(a) * 6 + Math.sin(i) * 2, 10 + Math.sin(a) * 6
+    );
+    ctx.stroke();
+  }
+  cache.set(key, c);
+  return c;
+}
+
+function genAbalone() {
+  const key = 'abalone';
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(14, 10);
+  const ctx = c.getContext('2d');
+  // 椭圆形壳
+  ctx.fillStyle = '#6a8a7a';
+  ctx.beginPath();
+  ctx.ellipse(7, 5, 6, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // 螺层纹理
+  ctx.strokeStyle = '#5a7a6a';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath();
+    ctx.arc(2 + i, 4 + i * 0.5, 3 + i, 0, Math.PI * 1.5);
+    ctx.stroke();
+  }
+  // 珍珠光泽内层
+  ctx.fillStyle = '#f0e8e040';
+  ctx.beginPath();
+  ctx.ellipse(7, 5, 4, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // 壳边呼吸孔
+  for (let i = 0; i < 3; i++) {
+    px(ctx, 3 + i * 3, 8, '#4a6a5a');
+  }
+  cache.set(key, c);
+  return c;
+}
+
+function genSeaglass(variant = 0) {
+  const colors = ['#7ec8d8', '#a8d8a0', '#e8c8a0', '#c8a8d8'];
+  const color = colors[variant % colors.length];
+  const key = `seaglass_${variant}`;
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(8, 8);
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = color;
+  ctx.globalAlpha = 0.7;
+  ctx.beginPath();
+  // 不规则圆角方形
+  ctx.moveTo(2, 0); ctx.lineTo(6, 0);
+  ctx.quadraticCurveTo(8, 1, 7, 3);
+  ctx.lineTo(6, 7);
+  ctx.quadraticCurveTo(5, 8, 3, 7);
+  ctx.lineTo(0, 4);
+  ctx.quadraticCurveTo(0, 2, 2, 0);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  // 高光
+  px(ctx, 2, 1, '#ffffff60');
+  cache.set(key, c);
+  return c;
+}
+
+function genCrabRock() {
+  const key = 'crab_rock';
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(14, 10);
+  const ctx = c.getContext('2d');
+  // 深灰色甲壳
+  ctx.fillStyle = '#5a5a5a';
+  ctx.beginPath();
+  ctx.ellipse(7, 4, 5, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // 斑纹
+  ctx.fillStyle = '#4a4a4a';
+  px(ctx, 5, 3, '#4a4a4a'); px(ctx, 9, 4, '#4a4a4a');
+  // 眼睛柄
+  ctx.strokeStyle = '#4a4a4a';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(4, 2); ctx.lineTo(3, 0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(10, 2); ctx.lineTo(11, 0); ctx.stroke();
+  // 8条腿
+  for (let side = -1; side <= 1; side += 2) {
+    for (let i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.moveTo(7 + side * 5, 4 + i * 0.5);
+      ctx.lineTo(7 + side * 7, 6 + i * 1.5);
+      ctx.stroke();
+    }
+  }
+  // 大螯
+  ctx.fillStyle = '#4a4a4a';
+  ctx.fillRect(0, 2, 4, 2);
+  ctx.fillRect(10, 3, 4, 2);
+  cache.set(key, c);
+  return c;
+}
+
 export function getTileSprite(type, variant = 0) {
   switch (type) {
     case 'dry_sand': return genTileDrySand(variant);
@@ -720,6 +954,8 @@ export function getTileSprite(type, variant = 0) {
     case 'rock_small': return genTileRock(16, 16, variant);
     case 'rock_medium': return genTileRock(16, 32, variant);
     case 'rock_large': return genTileRock(32, 32, variant);
+    case 'rock_barnacle': return genTileRockBarnacle(variant);
+    case 'rock_moss': return genTileRockMoss();
     case 'cave_entrance': return genTileCave();
     case 'dock_wood': return genTileDockWood(variant);
     case 'dock_plank': return genTileDockPlank(variant);

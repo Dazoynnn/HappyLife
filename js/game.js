@@ -48,6 +48,8 @@ export class Game {
     // 游戏进度
     this.day = 1;
     this.moonIndex = 0;  // 新月开始
+    this.currentBeach = 'white_sand';  // 当前选择的海滩
+    this.tripsCompleted = 0;  // 已完成出海次数（用于解锁海滩）
 
     // UI 状态
     this.showBackpack = false;
@@ -73,7 +75,7 @@ export class Game {
     this.weather.setWeather(this.currentWeather);
 
     // 初始化海滩
-    this.beachMap = new BeachMap('白沙湾');
+    this.beachMap = new BeachMap(this.currentBeach);
 
     // 初始化潮汐
     const baseDuration = 240; // 4分钟
@@ -129,6 +131,7 @@ export class Game {
 
     // 日数推进
     this.day++;
+    this.tripsCompleted++;
     this.moonIndex = (this.moonIndex + 1) % 8;
 
     // 清理海滩状态
@@ -526,12 +529,13 @@ export class Game {
     if (clicked) {
       const mx = this.mouseX, my = this.mouseY;
 
-      // 四个建筑 (位置对应 shop._drawBuildings)
+      // 五个建筑 (位置对应 shop._drawBuildings)
       const buildings = [
         { tab: 'sell',      x: 160*s, y: 380*s, w: 80*s, h: 60*s },
         { tab: 'aquarium',  x: 320*s, y: 390*s, w: 80*s, h: 60*s },
         { tab: 'museum',    x: 480*s, y: 385*s, w: 80*s, h: 60*s },
         { tab: 'equipment', x: 640*s, y: 375*s, w: 80*s, h: 60*s },
+        { tab: 'chart',     x: 720*s, y: 380*s, w: 80*s, h: 60*s },
       ];
       for (const b of buildings) {
         if (this._hitTest(b.x, b.y, b.w, b.h)) {
@@ -623,6 +627,25 @@ export class Game {
           }
         }
       }
+
+      if (this.shop.tab === 'chart') {
+        // 海滩选择
+        const beaches = [
+          { id: 'white_sand', name: '白沙湾', unlocked: true, row: 0 },
+          { id: 'black_reef', name: '黑礁岛', unlocked: this.tripsCompleted >= 3, row: 1 },
+        ];
+        const chartY = py + 32 * s;
+        for (const b of beaches) {
+          if (!b.unlocked) continue;
+          const by = chartY + b.row * 70 * s;
+          if (this._hitTest(px + 12 * s, by, pw - 24 * s, 60 * s)) {
+            this.currentBeach = b.id;
+            this.shop._selectedBeach = b.id;
+            this.shop.showMessage(`选择了${b.name}`);
+            return;
+          }
+        }
+      }
     }
 
     // ==== 键盘输入 ====
@@ -630,6 +653,7 @@ export class Game {
     if (this.input.wasPressed('KeyW')) { this.shop.tab = 'equipment'; this.shop.selectedSlot = -1; }
     if (this.input.wasPressed('KeyE')) { this.shop.tab = 'aquarium'; this.shop.selectedSlot = -1; }
     if (this.input.wasPressed('KeyR')) { this.shop.tab = 'museum'; this.shop.selectedSlot = -1; }
+    if (this.input.wasPressed('KeyT')) { this.shop.tab = 'chart'; this.shop.selectedSlot = -1; }
 
     if (this.shop.tab === 'sell') {
       if (this.input.wasPressed('ArrowUp')) this.shop.selectedSlot = Math.max(0, this.shop.selectedSlot - 1);
@@ -734,6 +758,8 @@ export class Game {
       }
     } else if (this.scene === SCENE.VILLAGE) {
       this.renderer.ctx.clearRect(0, 0, CANVAS_W * SCALE, CANVAS_H * SCALE);
+      this.shop._tripsCompleted = this.tripsCompleted;
+      this.shop._selectedBeach = this.currentBeach;
       this.shop.render(this.renderer.ctx);
       this._renderVillageHUD();
     }

@@ -9,6 +9,9 @@ export class ShopScene {
     this.tab = 'sell'; // sell / equipment / aquarium / museum
     this.message = '';
     this.messageTimer = 0;
+    this._tripsCompleted = 0;
+    this._selectedBeach = 'white_sand';
+    this._museumHall = 'shell'; // 'shell' or 'crustacean'
   }
 
   showMessage(msg) {
@@ -102,6 +105,7 @@ export class ShopScene {
       { label: '水族箱', x: 320, y: 390, key: '2' },
       { label: '博物馆', x: 480, y: 385, key: '3' },
       { label: '工坊', x: 640, y: 375, key: '4' },
+      { label: '海图', x: 720, y: 380, key: '5' },
     ];
 
     for (const b of buildings) {
@@ -109,7 +113,8 @@ export class ShopScene {
       ctx.fillStyle = this.tab === 'sell' && b.label === '鱼市' ? '#e8d8c0' :
                        this.tab === 'aquarium' && b.label === '水族箱' ? '#e8d8c0' :
                        this.tab === 'museum' && b.label === '博物馆' ? '#e8d8c0' :
-                       this.tab === 'equipment' && b.label === '工坊' ? '#e8d8c0' : '#d0c0a0';
+                       this.tab === 'equipment' && b.label === '工坊' ? '#e8d8c0' :
+                       this.tab === 'chart' && b.label === '海图' ? '#e8d8c0' : '#d0c0a0';
       ctx.fillRect(b.x * s, b.y * s, 80 * s, 60 * s);
       ctx.strokeStyle = '#a09080';
       ctx.lineWidth = 1;
@@ -168,6 +173,9 @@ export class ShopScene {
         break;
       case 'museum':
         this._drawMuseumTab(ctx, px, py, pw, ph);
+        break;
+      case 'chart':
+        this._drawChartTab(ctx, px, py, pw, ph);
         break;
     }
   }
@@ -376,6 +384,41 @@ export class ShopScene {
     }
   }
 
+  _drawChartTab(ctx, px, py, pw, ph) {
+    const s = SCALE;
+    ctx.fillStyle = COLORS.ui_dark;
+    ctx.font = `bold ${7 * s}px monospace`;
+    ctx.textAlign = 'left';
+    ctx.fillText('海图 — 选择海滩', px + 12 * s, py + 16 * s);
+
+    const beaches = [
+      { id: 'white_sand', name: '白沙湾', risky: '★', unlocked: true, desc: '平坦白色沙滩，适合新手' },
+      { id: 'black_reef', name: '黑礁岛', risky: '★★', unlocked: this._tripsCompleted >= 3, desc: '礁石密布，资源丰富' },
+    ];
+
+    for (let i = 0; i < beaches.length; i++) {
+      const b = beaches[i];
+      const by = py + 32 * s + i * 70 * s;
+      ctx.fillStyle = b.unlocked ? '#e8e0d0' : '#555';
+      ctx.fillRect(px + 12 * s, by, pw - 24 * s, 60 * s);
+      ctx.strokeStyle = this._selectedBeach === b.id ? COLORS.gold : '#888';
+      ctx.lineWidth = this._selectedBeach === b.id ? 2 : 1;
+      ctx.strokeRect(px + 12 * s, by, pw - 24 * s, 60 * s);
+
+      ctx.fillStyle = b.unlocked ? COLORS.ui_dark : '#666';
+      ctx.font = `${7 * s}px monospace`;
+      ctx.textAlign = 'left';
+      ctx.fillText(b.name, px + 24 * s, by + 22 * s);
+      ctx.font = `${5 * s}px monospace`;
+      ctx.fillText(b.unlocked ? `危险: ${b.risky}  ${b.desc}` : '完成3次出海后解锁', px + 24 * s, by + 44 * s);
+    }
+
+    ctx.fillStyle = '#888';
+    ctx.font = `${5 * s}px monospace`;
+    ctx.textAlign = 'left';
+    ctx.fillText('[点击海滩选择] [数字键5]切换海图', px + 12 * s, py + ph - 16 * s);
+  }
+
   _getCollectibleDefSync(id) {
     const defs = {
       'shell_fan': { name: '扇贝壳', value: 5, category: 'shell' },
@@ -385,6 +428,12 @@ export class ShopScene {
       'starfish': { name: '海星', value: 35, category: 'living', alive: true },
       'coin_ancient': { name: '古钱币', value: 80, category: 'treasure' },
       'pearl': { name: '珍珠', value: 120, category: 'treasure' },
+      'urchin': { name: '海胆', value: 25, category: 'living', alive: true },
+      'chiton': { name: '石鳖', value: 18, category: 'shell' },
+      'octopus_sm': { name: '小章鱼', value: 45, category: 'living', alive: true },
+      'abalone': { name: '鲍鱼', value: 55, category: 'shell', alive: true },
+      'seaglass': { name: '海玻璃', value: 10, category: 'treasure' },
+      'crab_rock': { name: '石蟹', value: 22, category: 'crustacean', alive: true },
     };
     return defs[id] || null;
   }

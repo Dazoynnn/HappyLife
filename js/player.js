@@ -245,6 +245,23 @@ export class Player {
       this.hp = Math.max(0, this.hp - 5 * dt);
     }
 
+    // 苔藓礁石滑倒检测
+    this._slipStun = this._slipStun || 0;
+    const tile = beachMap.getTileAt(this.x + 7, this.y + 8);
+    if (tile?.type === 'rock_moss' && this.inventory?.equippedShoes !== 'shoes_grip') {
+      this._slipTimer = (this._slipTimer || 0) + dt;
+      if (this._slipTimer > 1.5 && Math.random() < dt * 2) {
+        this._slipTimer = 0;
+        this.hp = Math.max(0, this.hp - 5);
+        this._slipStun = 0.6;
+      }
+    } else {
+      this._slipTimer = 0;
+    }
+    if (this._slipStun > 0) {
+      this._slipStun -= dt;
+    }
+
     // 更新水位状态
     this.updateWaterDepth(tideLevel, beachMap);
 
