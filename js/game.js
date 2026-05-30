@@ -1,6 +1,6 @@
 // game.js — 游戏主循环和场景管理
 
-import { CANVAS_W, CANVAS_H, SCALE, SCENE, MOON_PHASES, COLLECTIBLES, EQUIPMENT, rollWeather } from './data.js';
+import { CANVAS_W, CANVAS_H, SCALE, TILE_SIZE, SCENE, MOON_PHASES, COLLECTIBLES, EQUIPMENT, rollWeather } from './data.js';
 import { InputManager } from './input.js';
 import { Renderer } from './renderer.js';
 import { UIManager } from './ui.js';
@@ -96,6 +96,7 @@ export class Game {
 
     // 初始化事件
     this.shipwreckEvent = new ShipwreckEvent();
+    this._caveSpawned = false;
 
     // 切换场景
     this.scene = SCENE.BEACH;
@@ -361,11 +362,34 @@ export class Game {
       return;
     }
 
+    // 海蚀洞检测
+    const playerTile = this.beachMap.getTileAt(this.player.x + 7, this.player.y + 8);
+    if (playerTile?.type === 'cave_entrance' && !this._caveSpawned) {
+      this._caveSpawned = true;
+      if (this.tide.level < 0.15) {
+        // 洞内发现珍珠
+        const cx = playerTile.col * TILE_SIZE + 8;
+        const cy = playerTile.row * TILE_SIZE + 8;
+        const pearl = new Collectible('pearl', cx, cy);
+        this.collectibleMgr.items.push(pearl);
+        this.effects.addFloatingText(CANVAS_W / 2, 100, '海蚀洞内发现珍珠！', '#d4a840', 2);
+      }
+    }
+
+    // 拖拽物品放下
+    if (this.input.wasPressed('Space') && this.player.isDragging) {
+      const item = this.player.dropDrag();
+      if (item) {
+        this.collectibleMgr.items.push(new Collectible(item.id, this.player.x, this.player.y));
+        this.effects.addFloatingText(this.player.x, this.player.y - 5, '已放下', '#ffffff', 1);
+      }
+    }
+
     // 查找附近可采集物
     this.interactionTarget = this.collectibleMgr.findNearest(this.player.x, this.player.y, 25);
 
     // 开始采集
-    if (this.input.wasPressed('KeyE') && this.interactionTarget) {
+    if (this.input.wasPressed('KeyE') && this.interactionTarget && this.player.canCollect()) {
       this.player.isCollecting = true;
       this.player.collectTarget = this.interactionTarget;
       this.player.collectTimer = this.interactionTarget.def.collectTime / 1000;

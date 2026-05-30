@@ -91,6 +91,7 @@ export const COLLECTIBLES = {
     value: 120, weight: 0.1, stackSize: 1,
     collectMethod: 'auto', collectTime: 400,
     biomes: ['reef_zone'], alive: false,
+    bulky: false,
     description: '一颗圆润的珍珠，散发着柔和的光泽。',
   },
 };

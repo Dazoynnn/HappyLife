@@ -639,6 +639,76 @@ export function getPlayerSprite(anim, dir, frame) {
   }
 }
 
+function genTileCave() {
+  const key = 'cave_entrance';
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(TILE_SIZE, TILE_SIZE);
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#1a1a1a';
+  ctx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
+  // 洞口边缘岩石
+  ctx.fillStyle = COLORS.rock;
+  ctx.fillRect(0, 0, TILE_SIZE, 3);
+  ctx.fillRect(0, TILE_SIZE - 3, TILE_SIZE, 3);
+  ctx.fillRect(0, 0, 3, TILE_SIZE);
+  ctx.fillRect(TILE_SIZE - 3, 0, 3, TILE_SIZE);
+  // 钟乳石
+  ctx.fillStyle = COLORS.rock_light;
+  px(ctx, 5, 3, COLORS.rock_light);
+  px(ctx, 10, 4, COLORS.rock_light);
+  // 水痕
+  ctx.fillStyle = '#2d6e8240';
+  ctx.fillRect(0, 0, TILE_SIZE, 2);
+  cache.set(key, c);
+  return c;
+}
+
+function genTileDockWood(variant) {
+  const key = `dock_wood_${variant}`;
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(TILE_SIZE, TILE_SIZE);
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#5a4030';
+  ctx.fillRect(2, 0, 12, TILE_SIZE);
+  ctx.fillStyle = '#4a3020';
+  ctx.fillRect(6, 0, 2, TILE_SIZE);
+  if (variant === 1) {
+    ctx.fillStyle = '#3a5a2a';
+    ctx.fillRect(0, 2, TILE_SIZE, 1);
+  }
+  cache.set(key, c);
+  return c;
+}
+
+function genTileDockPlank(variant) {
+  const key = `dock_plank_${variant}`;
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(TILE_SIZE, TILE_SIZE);
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#6a4a30';
+  ctx.fillRect(2, 6, 12, 4);
+  ctx.fillStyle = '#5a3a20';
+  ctx.fillRect(2, 6, 12, 1);
+  cache.set(key, c);
+  return c;
+}
+
+function genTileTidePool() {
+  const key = 'tide_pool';
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(TILE_SIZE, TILE_SIZE);
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = COLORS.rock;
+  ctx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
+  ctx.fillStyle = '#3a8a95';
+  ctx.fillRect(3, 3, 10, 10);
+  // 生物暗示
+  px(ctx, 6, 7, '#e87850');
+  px(ctx, 10, 5, '#7ec8d8');
+  cache.set(key, c);
+  return c;
+}
+
 export function getTileSprite(type, variant = 0) {
   switch (type) {
     case 'dry_sand': return genTileDrySand(variant);
@@ -650,6 +720,10 @@ export function getTileSprite(type, variant = 0) {
     case 'rock_small': return genTileRock(16, 16, variant);
     case 'rock_medium': return genTileRock(16, 32, variant);
     case 'rock_large': return genTileRock(32, 32, variant);
+    case 'cave_entrance': return genTileCave();
+    case 'dock_wood': return genTileDockWood(variant);
+    case 'dock_plank': return genTileDockPlank(variant);
+    case 'tide_pool': return genTileTidePool();
     default: return genTileDrySand(0);
   }
 }

@@ -46,6 +46,8 @@ export class Player {
     this.isCollecting = false;
     this.collectTarget = null;
     this.collectTimer = 0;
+    this.isDragging = false;
+    this.draggingItem = null;  // { id, name, weight, value }
     this.isInWater = false;
     this.waterDepth = 0;     // 0=陆地, 1=浅水, 2=中水, 3=深水
     this.isInSafeZone = true;
@@ -68,6 +70,7 @@ export class Player {
   }
 
   get currentSpeed() {
+    if (this.isDragging) return this.speed * 0.5;
     let base = this.speed;
     // 奔跑（Shift 加速）
     // 实际速度由 game 根据 input 决定是否奔跑
@@ -88,6 +91,7 @@ export class Player {
   }
 
   get currentRunSpeed() {
+    if (this.isDragging) return this.currentSpeed; // 拖拽时不能跑
     let base = this.runSpeed;
     const wr = this.weightRatio;
     if (wr > 0.85) return this.currentSpeed; // 太重无法跑
@@ -96,6 +100,22 @@ export class Player {
     if (this.waterDepth >= 1) base *= 0.85;
     if (this.stamina <= 10) return this.currentSpeed;
     return base;
+  }
+
+  startDrag(itemDef) {
+    this.isDragging = true;
+    this.draggingItem = { id: itemDef.id, name: itemDef.name, weight: itemDef.weight || 5, value: itemDef.value || 50 };
+  }
+
+  dropDrag() {
+    this.isDragging = false;
+    const item = this.draggingItem;
+    this.draggingItem = null;
+    return item;
+  }
+
+  canCollect() {
+    return !this.isDragging && !this.isCollecting;
   }
 
   // 添加物品到背包
@@ -161,7 +181,9 @@ export class Player {
   // 更新动画
   updateAnim(dt, input, isRunning) {
     this.animTimer += dt;
-    if (this.isCollecting) {
+    if (this.isDragging) {
+      this.anim = 'carry';
+    } else if (this.isCollecting) {
       this.anim = this.collectTarget?.collectMethod === 'grab' ? 'grab' : 'dig';
     } else if (this.isOverburdened) {
       this.anim = 'carry';

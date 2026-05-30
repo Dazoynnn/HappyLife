@@ -36,6 +36,26 @@ export class BeachMap {
 
     // 放置潮池
     this._placeTidePools();
+
+    // 放置海蚀洞入口
+    this._placeCaveEntrance();
+  }
+
+  _placeCaveEntrance() {
+    // 海蚀洞在礁石区随机位置
+    const spots = [];
+    for (let row = 10; row < 16; row++) {
+      for (let col = 2; col < 28; col++) {
+        const t = this.tiles[row][col];
+        if (t && t.biome === 'reef_zone') spots.push({ row, col });
+      }
+    }
+    if (spots.length === 0) return;
+    const pick = spots[Math.floor(Math.random() * spots.length)];
+    this.tiles[pick.row][pick.col] = { type: 'cave_entrance', variant: 0, biome: 'cave' };
+    if (pick.col + 1 < this.cols) {
+      this.tiles[pick.row][pick.col + 1] = { type: 'cave_entrance', variant: 0, biome: 'cave' };
+    }
   }
 
   _genTile(row, col) {
