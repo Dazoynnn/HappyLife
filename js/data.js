@@ -94,6 +94,52 @@ export const COLLECTIBLES = {
     bulky: false,
     description: '一颗圆润的珍珠，散发着柔和的光泽。',
   },
+  // === 黑礁岛收集物 ===
+  urchin: {
+    id: 'urchin', name: '海胆', category: 'living', rarity: 'uncommon',
+    value: 25, weight: 0.6, stackSize: 3,
+    collectMethod: 'careful_pickup', collectTime: 1800,
+    biomes: ['reef_zone', 'barnacle_rock'], alive: true, aquariumOutput: 1.5,
+    danger: { type: 'damage', value: 15 },
+    description: '黑色的海胆，刺很长，要小心拿。',
+  },
+  chiton: {
+    id: 'chiton', name: '石鳖', category: 'shell', rarity: 'uncommon',
+    value: 18, weight: 0.4, stackSize: 5,
+    collectMethod: 'dig', collectTime: 1000,
+    biomes: ['barnacle_rock', 'moss_rock'], alive: false,
+    description: '紧紧吸在礁石上的小生物，得用力撬下来。',
+  },
+  octopus_sm: {
+    id: 'octopus_sm', name: '小章鱼', category: 'living', rarity: 'rare',
+    value: 45, weight: 0.7, stackSize: 2,
+    collectMethod: 'grab', collectTime: 2000,
+    biomes: ['tide_pool', 'deep_pool'], alive: true, aquariumOutput: 2.5,
+    danger: { type: 'escape', value: 0 },
+    description: '一只灵活的小章鱼，会喷墨逃跑。',
+  },
+  abalone: {
+    id: 'abalone', name: '鲍鱼', category: 'shell', rarity: 'rare',
+    value: 55, weight: 0.5, stackSize: 2,
+    collectMethod: 'dig', collectTime: 1600,
+    biomes: ['deep_pool', 'barnacle_rock'], alive: true, aquariumOutput: 2,
+    description: '吸附在深水礁石上的大鲍鱼，壳很漂亮。',
+  },
+  seaglass: {
+    id: 'seaglass', name: '海玻璃', category: 'treasure', rarity: 'common',
+    value: 10, weight: 0.1, stackSize: 9,
+    collectMethod: 'auto', collectTime: 500,
+    biomes: ['sand_shallow', 'tidal_flat', 'black_reef_shore'], alive: false,
+    description: '被海浪打磨光滑的玻璃碎片，有淡淡的颜色。',
+  },
+  crab_rock: {
+    id: 'crab_rock', name: '石蟹', category: 'crustacean', rarity: 'uncommon',
+    value: 22, weight: 1.0, stackSize: 3,
+    collectMethod: 'grab', collectTime: 1400,
+    biomes: ['barnacle_rock', 'moss_rock'], alive: true, aquariumOutput: 1,
+    danger: { type: 'damage', value: 12 },
+    description: '藏在礁石缝隙里的螃蟹，钳子比沙蟹更大。',
+  },
 };
 
 // ============ 装备定义 ============
@@ -175,6 +221,28 @@ export const MICRO_ZONES = {
   reef_zone:     { id: 'reef_zone',     name: '礁石区',     yRange: [10, 16], biome: 'reef_zone',  danger: 3 },
   outer_reef:    { id: 'outer_reef',    name: '外礁边缘',   yRange: [14, 18], biome: 'outer_reef', danger: 4 },
   deep_water:    { id: 'deep_water',    name: '远海',       yRange: [17, 20], biome: 'deep_water', danger: 5 },
+};
+
+// ============ 黑礁岛特有 biome ============
+export const BLACK_REEF_BIOMES = {
+  black_reef_shore: { name: '黑沙滩',    spawnMod: 1.0, danger: 0 },
+  barnacle_rock:    { name: '藤壶礁石区', spawnMod: 1.5, danger: 3 },
+  moss_rock:        { name: '苔藓礁石区', spawnMod: 1.2, danger: 2 },
+  deep_pool:        { name: '深潮池',     spawnMod: 2.0, danger: 2 },
+};
+
+// ============ 海滩定义 ============
+export const BEACHES = {
+  white_sand: {
+    id: 'white_sand', name: '白沙湾', unlock: '初始',
+    safeZoneRows: 4, rockDensity: 0.15, hasTidePools: true, hasCave: true,
+    description: '平坦的白色沙滩，适合新手赶海。',
+  },
+  black_reef: {
+    id: 'black_reef', name: '黑礁岛', unlock: '完成3次白沙湾出海',
+    safeZoneRows: 2, rockDensity: 0.4, hasTidePools: true, hasCave: false, hasMossRocks: true, hasDeepPools: true,
+    description: '礁石密布的岛屿，潮池众多，资源丰富但危险。',
+  },
 };
 
 // ============ 月相 ============
