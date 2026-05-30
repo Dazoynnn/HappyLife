@@ -629,6 +629,12 @@ export function getCollectibleSprite(itemId, state = 'default', frame = 0) {
     case 'abalone': return genAbalone();
     case 'seaglass': return genSeaglass(state === 'variant' ? frame : 0);
     case 'crab_rock': return genCrabRock();
+    case 'seahorse': return genSeahorse();
+    case 'seadragon': return genSeadragon();
+    case 'goby': return genGoby();
+    case 'nudibranch': return genNudibranch();
+    case 'sand_dollar': return genSandDollar();
+    case 'horseshoe_crab': return genHorseshoeCrab();
     default: return null;
   }
 }
@@ -943,6 +949,271 @@ function genCrabRock() {
   return c;
 }
 
+// === 海草甸 tile 精灵 ===
+function genTileMudFlat(variant) {
+  const key = `mud_flat_${variant}`;
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(TILE_SIZE, TILE_SIZE);
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = variant === 0 ? '#8a7a5a' : '#7a6a4a';
+  ctx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
+  // 泥纹纹理
+  ctx.fillStyle = variant === 0 ? '#6a5a3a' : '#5a4a2a';
+  for (let i = 0; i < 4; i++) {
+    const my = 3 + i * 4;
+    ctx.fillRect(2, my, 12, 1);
+  }
+  // 小水坑
+  ctx.fillStyle = '#5a8a9040';
+  ctx.fillRect(4, 6, 4, 2);
+  ctx.fillRect(10, 10, 3, 2);
+  cache.set(key, c);
+  return c;
+}
+
+function genTileMudPit() {
+  const key = 'mud_pit';
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(TILE_SIZE, TILE_SIZE);
+  const ctx = c.getContext('2d');
+  // 和淤泥颜色接近（不易察觉）
+  ctx.fillStyle = '#7a6a4a';
+  ctx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
+  ctx.fillStyle = '#6a5a3a';
+  ctx.fillRect(2, 2, 12, 12);
+  // 暗色深坑
+  ctx.fillStyle = '#3a3020';
+  ctx.beginPath();
+  ctx.arc(8, 8, 4, 0, Math.PI * 2);
+  ctx.fill();
+  // 周围泥纹
+  ctx.fillStyle = '#8a7a5a';
+  for (let i = 0; i < 3; i++) {
+    ctx.fillRect(1, 4 + i * 5, 3, 1);
+    ctx.fillRect(12, 4 + i * 5, 3, 1);
+  }
+  cache.set(key, c);
+  return c;
+}
+
+function genTileSeagrass(tall) {
+  const key = `seagrass_${tall}`;
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(TILE_SIZE, TILE_SIZE);
+  const ctx = c.getContext('2d');
+  // 水面底色
+  ctx.fillStyle = tall ? '#3a6a7a' : '#5a9aaa';
+  ctx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
+  // 海草
+  const h = tall ? TILE_SIZE : 10;
+  const blades = tall ? 5 : 3;
+  for (let i = 0; i < blades; i++) {
+    const bx = 3 + i * 3;
+    ctx.strokeStyle = i % 2 === 0 ? '#3a5a2a' : '#4a7a3a';
+    ctx.lineWidth = tall ? 2 : 1;
+    ctx.beginPath();
+    ctx.moveTo(bx, TILE_SIZE);
+    ctx.quadraticCurveTo(bx + (i - 1) * 2, TILE_SIZE - h / 2, bx + 1, TILE_SIZE - h);
+    ctx.stroke();
+  }
+  cache.set(key, c);
+  return c;
+}
+
+// === 海草甸收集物精灵 ===
+function genSeahorse() {
+  const key = 'seahorse';
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(14, 16);
+  const ctx = c.getContext('2d');
+  // 身体（S形）
+  ctx.fillStyle = '#e8b840';
+  ctx.beginPath();
+  ctx.moveTo(4, 14); // 尾巴尖
+  ctx.quadraticCurveTo(2, 10, 5, 7); // 下弯
+  ctx.quadraticCurveTo(8, 4, 6, 2);  // 上弯
+  ctx.lineTo(10, 1);                  // 头部
+  ctx.lineTo(8, 4);
+  ctx.quadraticCurveTo(10, 5, 8, 7);
+  ctx.lineTo(5, 10);
+  ctx.fill();
+  // 眼睛
+  px(ctx, 9, 1, '#1a1a1a');
+  // 背鳍
+  ctx.fillStyle = '#e8c860';
+  ctx.fillRect(5, 2, 3, 1);
+  // 卷尾
+  ctx.strokeStyle = '#d4a030';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(4, 14, 2, 0, Math.PI * 1.5);
+  ctx.stroke();
+  cache.set(key, c);
+  return c;
+}
+
+function genSeadragon() {
+  const key = 'seadragon';
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(18, 22);
+  const ctx = c.getContext('2d');
+  // 细长身体
+  ctx.strokeStyle = '#5a8a4a';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(9, 20);
+  ctx.quadraticCurveTo(7, 12, 9, 5);
+  ctx.quadraticCurveTo(11, 2, 10, 1);
+  ctx.stroke();
+  // 叶状附肢（伪装）
+  ctx.fillStyle = '#6a9a5a';
+  for (let i = 0; i < 5; i++) {
+    const ly = 4 + i * 4;
+    const side = i % 2 === 0 ? -1 : 1;
+    ctx.beginPath();
+    ctx.moveTo(9, ly);
+    ctx.quadraticCurveTo(9 + side * 6, ly - 3, 9 + side * 8, ly);
+    ctx.fill();
+  }
+  // 眼睛
+  px(ctx, 9, 2, '#1a1a1a');
+  // 管状嘴
+  ctx.strokeStyle = '#4a7a3a';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(10, 1);
+  ctx.lineTo(13, 0);
+  ctx.stroke();
+  cache.set(key, c);
+  return c;
+}
+
+function genGoby() {
+  const key = 'goby';
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(10, 6);
+  const ctx = c.getContext('2d');
+  // 鱼身
+  ctx.fillStyle = '#b89860';
+  ctx.beginPath();
+  ctx.ellipse(5, 3, 4, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // 尾鳍
+  ctx.fillStyle = '#c8a870';
+  ctx.beginPath();
+  ctx.moveTo(9, 3);
+  ctx.lineTo(12, 1);
+  ctx.lineTo(12, 5);
+  ctx.fill();
+  // 眼睛
+  px(ctx, 2, 2, '#1a1a1a');
+  // 背鳍
+  ctx.fillStyle = '#a88850';
+  ctx.fillRect(4, 0, 3, 1);
+  // 斑点
+  px(ctx, 5, 4, '#8a6840');
+  px(ctx, 7, 3, '#8a6840');
+  cache.set(key, c);
+  return c;
+}
+
+function genNudibranch() {
+  const key = 'nudibranch';
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(12, 10);
+  const ctx = c.getContext('2d');
+  // 柔软身体
+  ctx.fillStyle = '#e87890';
+  ctx.beginPath();
+  ctx.ellipse(6, 6, 5, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // 触角（ rhinophores）
+  ctx.strokeStyle = '#d06078';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(3, 2); ctx.lineTo(2, 0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(9, 2); ctx.lineTo(10, 0); ctx.stroke();
+  // 鳃（背面突起）
+  ctx.fillStyle = '#ffa0b0';
+  for (let i = 0; i < 4; i++) {
+    px(ctx, 3 + i * 2, 4, '#ffa0b0');
+  }
+  // 彩色斑点
+  px(ctx, 4, 7, '#ffe0e0');
+  px(ctx, 8, 6, '#ffc0d0');
+  px(ctx, 6, 8, '#ffe0e0');
+  cache.set(key, c);
+  return c;
+}
+
+function genSandDollar() {
+  const key = 'sand_dollar';
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(10, 10);
+  const ctx = c.getContext('2d');
+  // 扁圆身体
+  ctx.fillStyle = '#e8e0d0';
+  ctx.beginPath();
+  ctx.arc(5, 5, 4.5, 0, Math.PI * 2);
+  ctx.fill();
+  // 星形花纹（5条放射线）
+  ctx.strokeStyle = '#c8c0b0';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i < 5; i++) {
+    const a = (Math.PI * 2 * i) / 5 - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(5, 5);
+    ctx.lineTo(5 + Math.cos(a) * 4, 5 + Math.sin(a) * 4);
+    ctx.stroke();
+  }
+  // 边缘小孔
+  for (let i = 0; i < 5; i++) {
+    const a = (Math.PI * 2 * i) / 5;
+    px(ctx, 5 + Math.cos(a) * 3, 5 + Math.sin(a) * 3, '#d0c8b8');
+  }
+  cache.set(key, c);
+  return c;
+}
+
+function genHorseshoeCrab() {
+  const key = 'horseshoe_crab';
+  if (cache.has(key)) return cache.get(key);
+  const c = createCanvas(20, 16);
+  const ctx = c.getContext('2d');
+  // 马蹄形背甲
+  ctx.fillStyle = '#5a4a3a';
+  ctx.beginPath();
+  ctx.moveTo(3, 4);
+  ctx.quadraticCurveTo(2, 2, 6, 1);
+  ctx.quadraticCurveTo(10, 0, 14, 1);
+  ctx.quadraticCurveTo(18, 2, 17, 4);
+  ctx.lineTo(17, 10);
+  ctx.quadraticCurveTo(18, 12, 16, 13);
+  ctx.quadraticCurveTo(14, 14, 10, 14);
+  ctx.quadraticCurveTo(6, 14, 4, 13);
+  ctx.quadraticCurveTo(2, 12, 3, 10);
+  ctx.closePath();
+  ctx.fill();
+  // 甲壳纹路
+  ctx.strokeStyle = '#4a3a2a';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(10, 2);
+  ctx.lineTo(10, 12);
+  ctx.stroke();
+  // 尾刺
+  ctx.strokeStyle = '#5a4a3a';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(10, 13);
+  ctx.lineTo(10, 18);
+  ctx.stroke();
+  // 眼睛
+  px(ctx, 7, 3, '#1a1a1a');
+  px(ctx, 13, 3, '#1a1a1a');
+  cache.set(key, c);
+  return c;
+}
+
 export function getTileSprite(type, variant = 0) {
   switch (type) {
     case 'dry_sand': return genTileDrySand(variant);
@@ -960,6 +1231,10 @@ export function getTileSprite(type, variant = 0) {
     case 'dock_wood': return genTileDockWood(variant);
     case 'dock_plank': return genTileDockPlank(variant);
     case 'tide_pool': return genTileTidePool();
+    case 'mud_flat': return genTileMudFlat(variant);
+    case 'mud_pit': return genTileMudPit();
+    case 'seagrass_short': return genTileSeagrass(0);
+    case 'seagrass_tall': return genTileSeagrass(1);
     default: return genTileDrySand(0);
   }
 }

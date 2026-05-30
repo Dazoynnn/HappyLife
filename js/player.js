@@ -71,7 +71,10 @@ export class Player {
 
   get currentSpeed() {
     if (this.isDragging) return this.speed * 0.5;
+    if (this._mudStuck > 0) return 0; // 暗坑困住
     let base = this.speed;
+    // 淤泥减速（涉水靴可免疫，目前无涉水靴装备则直接减速）
+    if (this._onMud && this.inventory?.equippedShoes !== 'boots_iron') base *= 0.65;
     // 奔跑（Shift 加速）
     // 实际速度由 game 根据 input 决定是否奔跑
     // 负重惩罚
@@ -260,6 +263,19 @@ export class Player {
     }
     if (this._slipStun > 0) {
       this._slipStun -= dt;
+    }
+
+    // 淤泥减速标记
+    this._onMud = tile?.type === 'mud_flat' || tile?.biome === 'mud_flat' || tile?.type === 'seagrass_short';
+
+    // 暗坑陷阱
+    this._mudStuck = this._mudStuck || 0;
+    if (tile?.type === 'mud_pit' && this._mudStuck <= 0 && Math.random() < dt * 1.5) {
+      this._mudStuck = 2.0; // 被困2秒
+      this.hp = Math.max(0, this.hp - 3);
+    }
+    if (this._mudStuck > 0) {
+      this._mudStuck -= dt;
     }
 
     // 更新水位状态

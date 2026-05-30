@@ -25,6 +25,9 @@ export class BeachMap {
       case 'black_reef':
         this._generateBlackReef();
         break;
+      case 'seagrass':
+        this._generateSeagrass();
+        break;
       default:
         this._generateWhiteSand();
     }
@@ -159,6 +162,69 @@ export class BeachMap {
           this.tiles[s.row + 1][s.col] = { type: 'tide_pool', variant: 1, biome: 'deep_pool' };
           this.tiles[s.row + 1][s.col + 1] = { type: 'tide_pool', variant: 1, biome: 'deep_pool' };
         }
+      }
+    }
+  }
+
+  // ===================== 海草甸 =====================
+  _generateSeagrass() {
+    for (let row = 0; row < this.rows; row++) {
+      this.tiles[row] = [];
+      for (let col = 0; col < this.cols; col++) {
+        this.tiles[row][col] = this._tileSeagrass(row, col);
+      }
+    }
+    this._placeSeagrassPatches();
+    this._placeMudPits();
+  }
+
+  _tileSeagrass(row, col) {
+    const variant = (row * 7 + col * 13) % 3;
+    if (row < 3) return { type: 'dry_sand', variant, biome: 'safe' };
+    if (row < 6) return { type: 'wet_sand', variant: variant % 2, biome: 'sand_shallow' };
+    // 淤泥滩（主要地形）
+    if (row < 12)
+      return { type: 'mud_flat', variant: variant % 2, biome: 'mud_flat' };
+    // 海草浅水
+    if (row < 17)
+      return { type: 'shallow_water', variant: 0, biome: 'seagrass_meadow' };
+    if (row < 19)
+      return { type: 'mid_water', variant: 0, biome: 'outer_reef' };
+    return { type: row >= 19 ? 'abyss_water' : 'deep_water', variant: 0, biome: 'deep_water' };
+  }
+
+  _placeSeagrassPatches() {
+    // 在浅水区随机放置海草丛
+    for (let row = 8; row < 17; row++) {
+      for (let col = 0; col < this.cols; col++) {
+        const t = this.tiles[row][col];
+        if (t && (t.biome === 'seagrass_meadow' || t.biome === 'mud_flat')) {
+          if (Math.random() < 0.35) {
+            // 高海草（遮挡视野）
+            if (Math.random() < 0.3 && row > 10) {
+              this.tiles[row][col] = { type: 'seagrass_tall', variant: 0, biome: 'seagrass_tall' };
+            } else {
+              this.tiles[row][col] = { type: 'seagrass_short', variant: 0, biome: 'seagrass_meadow' };
+            }
+          }
+        }
+      }
+    }
+    // 放置几簇矮礁石
+    this._setRockRect(7, 3, 2, 1, 'small');
+    this._setRockRect(12, 22, 2, 2, 'small');
+    this._setRockRect(14, 12, 1, 1, 'small');
+  }
+
+  _placeMudPits() {
+    // 暗坑陷阱：在淤泥区随机放置
+    const count = 4 + Math.floor(Math.random() * 4);
+    for (let i = 0; i < count; i++) {
+      const row = 5 + Math.floor(Math.random() * 8);
+      const col = 2 + Math.floor(Math.random() * 26);
+      if (row < this.rows && col < this.cols) {
+        this.tiles[row][col] = { type: 'mud_pit', variant: 0, biome: 'mud_flat' };
+        // 暗坑不易察觉 => 混合在淤泥中
       }
     }
   }

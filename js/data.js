@@ -140,6 +140,52 @@ export const COLLECTIBLES = {
     danger: { type: 'damage', value: 12 },
     description: '藏在礁石缝隙里的螃蟹，钳子比沙蟹更大。',
   },
+  // === 海草甸收集物 ===
+  seahorse: {
+    id: 'seahorse', name: '海马', category: 'fish', rarity: 'rare',
+    value: 40, weight: 0.3, stackSize: 2,
+    collectMethod: 'careful_pickup', collectTime: 1600,
+    biomes: ['seagrass_meadow'], alive: true, aquariumOutput: 2.5,
+    description: '一只小小的海马，尾巴卷在海草上。',
+  },
+  seadragon: {
+    id: 'seadragon', name: '海龙', category: 'fish', rarity: 'rare',
+    value: 70, weight: 0.5, stackSize: 1,
+    collectMethod: 'grab', collectTime: 2200,
+    biomes: ['seagrass_tall'], alive: true, aquariumOutput: 3,
+    danger: { type: 'escape', value: 0 },
+    description: '伪装在海草中的海龙，极难发现。',
+  },
+  goby: {
+    id: 'goby', name: '虾虎鱼', category: 'fish', rarity: 'common',
+    value: 15, weight: 0.2, stackSize: 5,
+    collectMethod: 'grab', collectTime: 1000,
+    biomes: ['mud_flat', 'seagrass_meadow'], alive: true, aquariumOutput: 0.5,
+    danger: { type: 'escape', value: 0 },
+    description: '趴在泥地上的小鱼，反应很快。',
+  },
+  nudibranch: {
+    id: 'nudibranch', name: '海蛞蝓', category: 'living', rarity: 'uncommon',
+    value: 35, weight: 0.2, stackSize: 3,
+    collectMethod: 'pickup', collectTime: 800,
+    biomes: ['seagrass_meadow', 'seagrass_tall'], alive: true, aquariumOutput: 1.5,
+    description: '色彩斑斓的海蛞蝓，像一片飘落的彩虹。',
+  },
+  sand_dollar: {
+    id: 'sand_dollar', name: '沙钱', category: 'shell', rarity: 'common',
+    value: 12, weight: 0.15, stackSize: 9,
+    collectMethod: 'dig', collectTime: 700,
+    biomes: ['mud_flat', 'sand_shallow'], alive: false,
+    description: '扁圆的白色沙钱，上面有星形花纹。',
+  },
+  horseshoe_crab: {
+    id: 'horseshoe_crab', name: '鲎', category: 'crustacean', rarity: 'rare',
+    value: 90, weight: 3.0, stackSize: 1,
+    collectMethod: 'grab', collectTime: 2500,
+    biomes: ['mud_flat', 'seagrass_meadow'], alive: true, aquariumOutput: 3,
+    bulky: true,
+    description: '远古生物鲎，背甲像马蹄，非常大只。',
+  },
 };
 
 // ============ 装备定义 ============
@@ -242,6 +288,12 @@ export const BEACHES = {
     id: 'black_reef', name: '黑礁岛', unlock: '完成3次白沙湾出海',
     safeZoneRows: 2, rockDensity: 0.4, hasTidePools: true, hasCave: false, hasMossRocks: true, hasDeepPools: true,
     description: '礁石密布的岛屿，潮池众多，资源丰富但危险。',
+  },
+  seagrass: {
+    id: 'seagrass', name: '海草甸', unlock: '完成黑礁岛+水族箱5只生物',
+    safeZoneRows: 3, rockDensity: 0.05, hasTidePools: false, hasCave: false,
+    hasSeagrass: true, hasMudFlats: true, hasMudPits: true,
+    description: '海草丛生的浅滩，淤泥地形暗藏陷阱。',
   },
 };
 
