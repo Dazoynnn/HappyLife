@@ -231,27 +231,31 @@ export class UIManager {
       }
     }
 
-    // 底部按钮 (2行排列，节省空间)
-    const btnY1 = py + ph - 48 * s;
-    const btnY2 = py + ph - 24 * s;
+    // 底部按钮
+    const btnY1 = py + ph - 60 * s;
+    const btnY2 = py + ph - 32 * s;
     const btnW = (pw - 40 * s) / 2;
-    const btnH = 20 * s;
+    const btnH = 26 * s;
 
-    const drawBtn = (label, x, y) => {
+    const buttons = [
+      { label: '[S]出售',     x: px + 12 * s,         y: btnY1, action: 'sell' },
+      { label: '[A]水族箱',   x: px + 16 * s + btnW,  y: btnY1, action: 'aquarium' },
+      { label: '[M]博物馆',   x: px + 12 * s,         y: btnY2, action: 'museum' },
+      { label: '[Tab]关闭',   x: px + 16 * s + btnW,  y: btnY2, action: 'close' },
+    ];
+
+    this._bpButtons = buttons;
+
+    for (const b of buttons) {
       ctx.fillStyle = '#d8d0c0';
-      ctx.fillRect(x, y, btnW, btnH);
+      ctx.fillRect(b.x, b.y, btnW, btnH);
       ctx.strokeStyle = '#a09080';
       ctx.lineWidth = 1;
-      ctx.strokeRect(x, y, btnW, btnH);
+      ctx.strokeRect(b.x, b.y, btnW, btnH);
       ctx.fillStyle = COLORS.ui_dark;
-      ctx.font = `${5 * s}px monospace`;
+      ctx.font = `${6 * s}px monospace`;
       ctx.textAlign = 'center';
-      ctx.fillText(label, x + btnW / 2, y + btnH / 2 + 4 * s);
-    };
-
-    drawBtn('[S]出售', px + 12 * s, btnY1);
-    drawBtn('[A]水族箱', px + 16 * s + btnW, btnY1);
-    drawBtn('[M]博物馆', px + 12 * s, btnY2);
-    drawBtn('[Esc/Tab]关闭', px + 16 * s + btnW, btnY2);
+      ctx.fillText(b.label, b.x + btnW / 2, b.y + btnH / 2 + 4 * s);
+    }
   }
 }

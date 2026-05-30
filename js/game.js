@@ -317,33 +317,27 @@ export class Game {
           }
         }
         // 点击底部按钮
-        const btnW = (pw - 40 * s) / 2, btnH = 20 * s;
-        const btnY1 = py + ph - 48 * s, btnY2 = py + ph - 24 * s;
-        if (this._hitTest(px + 12 * s, btnY1, btnW, btnH)) {
-          if (this.backpackSlotSelected < this.inventory.items.length) {
-            const val = this.inventory.sellItem(this.backpackSlotSelected);
-            if (val > 0) this.shop.showMessage(`出售 +${val}金币`);
-          }
-        }
-        if (this._hitTest(px + 16 * s + btnW, btnY1, btnW, btnH)) {
-          if (this.backpackSlotSelected < this.inventory.items.length) {
-            const id = this.inventory.items[this.backpackSlotSelected].id;
-            const def = COLLECTIBLES[id];
-            if (!def?.alive) {
-              this.shop.showMessage('只有活体生物才能放入水族箱');
-            } else if (this.inventory.addToAquarium(id)) {
-              this.shop.showMessage(`已将 ${def.name} 放入水族箱`);
+        const btns = this.ui._bpButtons;
+        if (btns) {
+          for (const b of btns) {
+            const bw = (pw - 40 * s) / 2, bh = 26 * s;
+          if (this._hitTest(b.x, b.y, bw, bh)) {
+              if (b.action === 'close') { this.showBackpack = false; return; }
+              if (this.backpackSlotSelected >= this.inventory.items.length) return;
+              const id = this.inventory.items[this.backpackSlotSelected].id;
+              const def = COLLECTIBLES[id];
+              if (b.action === 'sell') {
+                const val = this.inventory.sellItem(this.backpackSlotSelected);
+                if (val > 0) this.shop.showMessage(`出售 +${val}金币`);
+              } else if (b.action === 'aquarium') {
+                if (!def?.alive) { this.shop.showMessage('只有活体生物才能放入水族箱'); }
+                else if (this.inventory.addToAquarium(id)) { this.shop.showMessage(`已将 ${def.name} 放入水族箱`); }
+              } else if (b.action === 'museum') {
+                this.inventory.donateItem(id);
+              }
+              return;
             }
           }
-        }
-        if (this._hitTest(px + 12 * s, btnY2, btnW, btnH)) {
-          if (this.backpackSlotSelected < this.inventory.items.length) {
-            const id = this.inventory.items[this.backpackSlotSelected].id;
-            this.inventory.donateItem(id);
-          }
-        }
-        if (this._hitTest(px + 16 * s + btnW, btnY2, btnW, btnH)) {
-          this.showBackpack = false;
         }
       }
       this._updateBackpackInput();
