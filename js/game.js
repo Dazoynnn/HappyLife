@@ -345,8 +345,12 @@ export class Game {
       return;
     }
 
-    // 返回村庄（需双击确认）
+    // 返回村庄（必须先在安全区，双击确认）
     if (this.input.wasPressed('Escape')) {
+      if (!this.player.isInSafeZone) {
+        this.shop.showMessage('先回到岸边安全区才能回村！');
+        return;
+      }
       const now = Date.now();
       if (this._escTimer && now - this._escTimer < 1500) {
         this._escTimer = 0;
