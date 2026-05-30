@@ -348,7 +348,7 @@ export class Game {
     // 返回村庄（必须先在安全区，双击确认）
     if (this.input.wasPressed('Escape')) {
       if (!this.player.isInSafeZone) {
-        this.shop.showMessage('先回到岸边安全区才能回村！');
+        this.effects.addFloatingText(this.player.x, this.player.y - 10, '先回到岸边!', '#ffa040', 2);
         return;
       }
       const now = Date.now();
@@ -357,7 +357,7 @@ export class Game {
         this.returnToVillage();
       } else {
         this._escTimer = now;
-        this.shop.showMessage('再次按 Esc 确认返回村庄（会结算）');
+        this.effects.addFloatingText(this.player.x, this.player.y - 10, '再按Esc确认回村', '#d4a840', 1.5);
       }
       return;
     }
