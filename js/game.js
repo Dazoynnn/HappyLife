@@ -633,7 +633,7 @@ export class Game {
         const beaches = [
           { id: 'white_sand', name: '白沙湾', unlocked: true, row: 0 },
           { id: 'black_reef', name: '黑礁岛', unlocked: this.tripsCompleted >= 3, row: 1 },
-          { id: 'seagrass', name: '海草甸', unlocked: this.tripsCompleted >= 6 && this.inventory.aquariumCount >= 5, row: 2 },
+          { id: 'seagrass', name: '海草甸', unlocked: this.tripsCompleted >= 3, row: 2 },
         ];
         const chartY = py + 32 * s;
         for (const b of beaches) {

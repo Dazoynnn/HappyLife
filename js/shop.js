@@ -394,7 +394,7 @@ export class ShopScene {
     const beaches = [
       { id: 'white_sand', name: '白沙湾', risky: '★', unlocked: true, desc: '平坦白色沙滩，适合新手' },
       { id: 'black_reef', name: '黑礁岛', risky: '★★', unlocked: this._tripsCompleted >= 3, desc: '礁石密布，资源丰富' },
-      { id: 'seagrass', name: '海草甸', risky: '★★★', unlocked: this._tripsCompleted >= 6 && this._aquariumCount >= 5, desc: '海草丛生，淤泥暗藏陷阱' },
+      { id: 'seagrass', name: '海草甸', risky: '★★★', unlocked: this._tripsCompleted >= 3, desc: '海草丛生，淤泥暗藏陷阱' },
     ];
 
     for (let i = 0; i < beaches.length; i++) {
