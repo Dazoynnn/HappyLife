@@ -54,9 +54,9 @@ export class Collectible {
       const dy = playerY - this.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
 
-      if (dist < 40 && this.state === 'idle') {
+      if (dist < 25 && this.state === 'idle') {
         this.state = 'flee';
-        this.fleeTimer = 1.5;
+        this.fleeTimer = 1.0;
         // 逃跑方向：远离玩家
         if (dist > 0) {
           this.fleeX = -dx / dist;
@@ -66,7 +66,7 @@ export class Collectible {
 
       if (this.state === 'flee') {
         this.fleeTimer -= dt;
-        const speed = 30;
+        const speed = 20;
         this.x += this.fleeX * speed * dt;
         this.y += this.fleeY * speed * dt;
         // 边界约束

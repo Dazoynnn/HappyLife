@@ -242,7 +242,7 @@ export const STARTING_EQUIPMENT = ['shovel_wood'];
 
 // 沉船事件掉落表
 export const SHIPWRECK_LOOT = {
-  guaranteed: [{ id: 'coin_ancient', count: 20 }],
+  guaranteed: [{ id: 'coin_ancient', count: 5 }],
   random: [
     { id: 'pearl', count: 1, chance: 0.8 },
     { id: 'shell_conch', count: 3, chance: 0.5 },

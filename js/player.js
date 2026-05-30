@@ -171,14 +171,14 @@ export class Player {
     this.isInSafeZone = tideLevel < 0.1 ? true : (tileY < beachMap.safeZoneEnd);
   }
 
-  // 受到伤害
-  takeDamage(amount) {
+  // 受到伤害，source: 'creature'|'water'|'trap'|undefined
+  takeDamage(amount, source = null) {
     // 甲壳免疫遗产 — 螃蟹/海胆攻击免疫
-    if (this.inventory?.hasLegacy?.('crustacean_immunity')) {
+    if (source === 'creature' && this.inventory?.hasLegacy?.('crustacean_immunity')) {
       amount = 0;
     }
-    // 竹夹免疫螃蟹/海胆伤害
-    if (amount > 0 && this.inventory?.equippedTool === 'tongs_bamboo') {
+    // 竹夹只免疫生物攻击（螃蟹/海胆）
+    if (amount > 0 && source === 'creature' && this.inventory?.equippedTool === 'tongs_bamboo') {
       amount = 0;
     }
     // 手套减伤

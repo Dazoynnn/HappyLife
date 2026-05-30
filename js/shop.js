@@ -370,15 +370,16 @@ export class ShopScene {
     ctx.fillText(`进度: ${donatedCount}/${hall.exhibits.length}  [← →]切换展区`, px + 12 * s, py + ph - 40 * s);
 
     if (donatedCount === hall.exhibits.length && !this.inventory.hasLegacy(hall.legacy)) {
-      ctx.fillStyle = '#c04030';
-      const btnX = px + pw / 2 - 60 * s;
+      const confirming = this._prestigeConfirm === hall.id;
+      ctx.fillStyle = confirming ? '#ff6040' : '#c04030';
+      const btnX = px + pw / 2 - 70 * s;
       const btnY = py + ph - 50 * s;
-      ctx.fillRect(btnX, btnY, 120 * s, 24 * s);
+      ctx.fillRect(btnX, btnY, 140 * s, 24 * s);
       ctx.fillStyle = '#f5f0e0';
       ctx.font = `bold ${5 * s}px monospace`;
       ctx.textAlign = 'center';
-      ctx.fillText('致伟大的海洋', px + pw / 2, btnY + 16 * s);
-      this._museumPrestigeBtn = { x: btnX, y: btnY, w: 120 * s, h: 24 * s };
+      ctx.fillText(confirming ? '再次点击确认重置!' : '致伟大的海洋', px + pw / 2, btnY + 16 * s);
+      this._museumPrestigeBtn = { x: btnX, y: btnY, w: 140 * s, h: 24 * s };
       this._museumPrestigeHall = hall.id;
     } else if (this.inventory.hasLegacy(hall.legacy)) {
       ctx.fillStyle = COLORS.gold;

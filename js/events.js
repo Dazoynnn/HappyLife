@@ -57,8 +57,9 @@ export class ShipwreckEvent {
     return items;
   }
 
-  /** 随机掉落装备 ID */
+  /** 随机掉落装备 ID（50%概率） */
   static rollEquipment() {
+    if (Math.random() > 0.5) return null;
     const pool = SHIPWRECK_LOOT.equipmentDrop;
     if (!pool || pool.length === 0) return null;
     return pool[Math.floor(Math.random() * pool.length)];

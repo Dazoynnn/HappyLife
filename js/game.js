@@ -375,8 +375,8 @@ export class Game {
     // 海蚀洞检测
     const playerTile = this.beachMap.getTileAt(this.player.x + 7, this.player.y + 8);
     if (playerTile?.type === 'cave_entrance' && !this._caveSpawned) {
-      this._caveSpawned = true;
       if (this.tide.level < 0.15) {
+        this._caveSpawned = true;
         // 洞内发现珍珠
         const cx = playerTile.col * TILE_SIZE + 8;
         const cy = playerTile.row * TILE_SIZE + 8;
@@ -466,7 +466,8 @@ export class Game {
         // 危险判定（螃蟹夹手等）
         if (target.def.danger) {
           const dmg = target.def.danger.value;
-          this.player.takeDamage(dmg);
+          const src = target.def.danger.type === 'damage' ? 'creature' : null;
+          this.player.takeDamage(dmg, src);
           this.effects.burstDamage(target.x + 7, target.y + 4);
           this.effects.addFloatingText(target.x, target.y - 5, `-${dmg} HP`, '#c04030', 1);
           this.audio.playDamage();
@@ -617,17 +618,25 @@ export class Game {
             return;
           }
         }
-        // 威望按钮
+        // 威望按钮（二次确认）
         const donatedCount = exhibits.filter(e => this.inventory.museum.includes(e)).length;
         if (donatedCount >= exhibits.length && !this.inventory.hasLegacy(hd.legacy)) {
-          const btnX = px + pw/2 - 60*s, btnY = py + 190*s;
-          if (this._hitTest(btnX, btnY, 120*s, 24*s)) {
-            const legacy = this.inventory.prestige(hallId);
-            if (legacy) {
-              this.shop.showMessage('致伟大的海洋！获得永久遗产！');
+          const btnX = px + pw/2 - 70*s, btnY = py + 190*s;
+          if (this._hitTest(btnX, btnY, 140*s, 24*s)) {
+            if (this.shop._prestigeConfirm === hallId) {
+              const legacy = this.inventory.prestige(hallId);
+              if (legacy) {
+                this.shop.showMessage('致伟大的海洋！获得永久遗产！');
+                this.shop._prestigeConfirm = null;
+              }
+            } else {
+              this.shop._prestigeConfirm = hallId;
+              this.shop.showMessage('再次点击确认重置所有进度...');
             }
             return;
           }
+        } else {
+          this.shop._prestigeConfirm = null;
         }
         // 点击 ◀ ▶ 切换展区
         if (this._hitTest(px + 20*s, py + 8*s, 30*s, 20*s)) {
