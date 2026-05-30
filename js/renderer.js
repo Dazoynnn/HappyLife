@@ -45,12 +45,7 @@ export class Renderer {
       this._drawShipwreck(ctx, this._shipwreckEvent);
     }
 
-    // 3. 天气效果（雨滴等，在收集物之前）
-    if (weather) {
-      weather.drawRain(ctx, 1); // 在 buffer 上以 1x 绘制
-    }
-
-    // 4. 收集物
+    // 3. 收集物
     this._drawCollectibles(ctx, collectibleMgr);
 
     // 5. 玩家
@@ -86,6 +81,11 @@ export class Renderer {
       this.ctx.fillStyle = `rgba(255,255,255,${this.flashAlpha})`;
       this.ctx.fillRect(0, 0, CANVAS_W * SCALE, CANVAS_H * SCALE);
       this.flashAlpha = Math.max(0, this.flashAlpha - 0.04);
+    }
+
+    // 天气效果（雨滴画在主 canvas 2x 上，确保可见）
+    if (weather && weather.currentKey !== 'sunny') {
+      weather.drawRain(this.ctx, SCALE);
     }
 
     // 危险闪屏

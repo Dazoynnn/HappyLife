@@ -18,16 +18,16 @@ export class UIManager {
   }
 
   render(ctx, gameState) {
-    const { tide, player, inventory, moonIndex } = gameState;
+    const { tide, player, inventory, moonIndex, weather } = gameState;
 
     // 顶部 HUD
-    this._drawTopBar(ctx, tide, inventory, moonIndex);
+    this._drawTopBar(ctx, tide, inventory, moonIndex, weather);
 
     // 底部 HUD
     this._drawBottomBar(ctx, player, gameState);
   }
 
-  _drawTopBar(ctx, tide, inventory, moonIndex) {
+  _drawTopBar(ctx, tide, inventory, moonIndex, weather = 'sunny') {
     const ox = 8 * SCALE;
     const oy = 6 * SCALE;
 
@@ -44,6 +44,14 @@ export class UIManager {
     ctx.font = `${6 * SCALE}px monospace`;
     ctx.textAlign = 'left';
     ctx.fillText(MOON_NAMES[moonPhase] || '', ox + 22 * SCALE, oy + 13 * SCALE);
+
+    // 天气指示
+    const weatherNames = { sunny: '☀', drizzle: '🌧', storm: '⛈' };
+    const weatherColors = { sunny: '#d4a840', drizzle: '#7ec8d8', storm: '#8888cc' };
+    const weatherEmoji = weatherNames[weather] || '';
+    ctx.fillStyle = weatherColors[weather] || '#888';
+    ctx.font = `${7 * SCALE}px monospace`;
+    ctx.fillText(weatherEmoji, ox + 122 * SCALE, oy + 14 * SCALE);
 
     // 潮位指示条
     const tideX = 160 * SCALE;

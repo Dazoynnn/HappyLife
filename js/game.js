@@ -727,6 +727,7 @@ export class Game {
         player: this.player,
         inventory: this.inventory,
         moonIndex: this.moonIndex,
+        weather: this.currentWeather,
       });
       if (this.showBackpack) {
         this.ui.renderBackpack(this.renderer.ctx, this.inventory, this.backpackSlotSelected);

@@ -367,6 +367,12 @@ export class ShopScene {
       ctx.font = `${6 * s}px monospace`;
       ctx.textAlign = 'center';
       ctx.fillText('永久遗产: 贝类精通 (贝壳产出+25%)', px + pw / 2, py + ph - 50 * s);
+    } else {
+      // 显示灰色进度提示
+      ctx.fillStyle = '#888';
+      ctx.font = `${5 * s}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText(`集齐5件展品可触发「致伟大的海洋」(${donatedCount}/5)`, px + pw / 2, py + ph - 50 * s);
     }
   }
 
