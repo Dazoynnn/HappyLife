@@ -20,7 +20,8 @@ export class TideSystem {
   }
 
   start() {
-    this.elapsed = 0;
+    // 从退潮中期开始（跳过满潮），让海滩可见
+    this.elapsed = this.totalDuration * 0.03;
     this.isActive = true;
     this.paused = false;
     this.updateLevel();

@@ -247,10 +247,7 @@ export class Player {
       this.stamina = Math.min(this.maxStamina, this.stamina + this.staminaRegen * dt);
     }
 
-    // 水中扣血（深渊区）
-    if (this.waterDepth >= 3) {
-      this.hp = Math.max(0, this.hp - 5 * dt);
-    }
+    // 水中扣血由 game.js 统一处理，这里不再重复
 
     // 苔藓礁石滑倒检测
     this._slipStun = this._slipStun || 0;

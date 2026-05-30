@@ -115,6 +115,13 @@ export class CollectibleManager {
       { id: 'abalone', biomes: ['deep_pool', 'barnacle_rock'], count: [0, 2] },
       { id: 'seaglass', biomes: ['sand_shallow', 'tidal_flat', 'black_reef_shore'], count: [2, 6] },
       { id: 'crab_rock', biomes: ['barnacle_rock', 'moss_rock'], count: [1, 4] },
+      // 海草甸特有
+      { id: 'seahorse', biomes: ['seagrass_meadow'], count: [1, 3] },
+      { id: 'seadragon', biomes: ['seagrass_tall'], count: [0, 2] },
+      { id: 'goby', biomes: ['mud_flat', 'seagrass_meadow'], count: [3, 8] },
+      { id: 'nudibranch', biomes: ['seagrass_meadow', 'seagrass_tall'], count: [1, 4] },
+      { id: 'sand_dollar', biomes: ['mud_flat'], count: [4, 10] },
+      { id: 'horseshoe_crab', biomes: ['mud_flat', 'seagrass_meadow'], count: [0, 2] },
     ];
 
     for (const config of spawnConfigs) {

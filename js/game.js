@@ -587,7 +587,7 @@ export class Game {
 
       if (this.shop.tab === 'equipment') {
         // 装备行 (每行 36*s 高, 从 py+44*s 开始)
-        const equips = ['shovel_iron','gloves_leather','shoes_grip','basket_medium'];
+        const equips = ['shovel_iron','coral_pick','tongs_bamboo','gloves_leather','shoes_grip','boots_iron','basket_medium','headlamp'];
         for (let i = 0; i < equips.length; i++) {
           const ey = py + 44 * s + i * 36 * s;
           if (this._hitTest(px + 8*s, ey - s, pw - 16*s, 32*s)) {
@@ -701,9 +701,13 @@ export class Game {
 
     if (this.shop.tab === 'equipment') {
       if (this.input.wasPressed('Digit1')) this._buyEquipment('shovel_iron');
-      if (this.input.wasPressed('Digit2')) this._buyEquipment('gloves_leather');
-      if (this.input.wasPressed('Digit3')) this._buyEquipment('shoes_grip');
-      if (this.input.wasPressed('Digit4')) this._buyEquipment('basket_medium');
+      if (this.input.wasPressed('Digit2')) this._buyEquipment('coral_pick');
+      if (this.input.wasPressed('Digit3')) this._buyEquipment('tongs_bamboo');
+      if (this.input.wasPressed('Digit4')) this._buyEquipment('gloves_leather');
+      if (this.input.wasPressed('Digit5')) this._buyEquipment('shoes_grip');
+      if (this.input.wasPressed('Digit6')) this._buyEquipment('boots_iron');
+      if (this.input.wasPressed('Digit7')) this._buyEquipment('basket_medium');
+      if (this.input.wasPressed('Digit8')) this._buyEquipment('headlamp');
     }
 
     if (this.shop.tab === 'museum') {

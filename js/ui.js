@@ -148,7 +148,11 @@ export class UIManager {
     ctx.fillStyle = '#f5f0e0';
     ctx.font = `${5 * SCALE}px monospace`;
     ctx.textAlign = 'right';
-    const toolName = player.equipment.tool || '木铲';
+    const inv = gameState.inventory;
+    let toolName = '木铲';
+    if (inv?.equippedTool === 'shovel_iron') toolName = '铁铲';
+    else if (inv?.equippedTool === 'coral_pick') toolName = '珊瑚镐';
+    else if (inv?.equippedTool === 'tongs_bamboo') toolName = '竹夹';
     ctx.fillText(`工具: ${toolName}`, CANVAS_W * SCALE - 10 * SCALE, oy + 15 * SCALE);
 
     // 操作提示
