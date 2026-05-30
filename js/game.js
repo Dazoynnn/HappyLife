@@ -242,6 +242,12 @@ export class Game {
       const gx = this.mouseX / SCALE;
       const gy = this.mouseY / SCALE;
 
+      // 检查点击是否在玩家附近（40px 范围内）
+      const distToPlayer = Math.sqrt(
+        (gx - (this.player.x + 7)) ** 2 + (gy - (this.player.y + 8)) ** 2
+      );
+      if (distToPlayer <= 40) {
+
       // 先检查是否点击沉船
       if (this.shipwreckEvent?.active && !this.shipwreckEvent.looted && this.shipwreckEvent.hitTest(gx, gy)) {
         const loot = this.shipwreckEvent.spawnLoot();
@@ -261,11 +267,13 @@ export class Game {
         this.shop.showMessage('洗劫沉船！大量珍宝！');
       }
 
-      const target = this.collectibleMgr.findNearest(gx, gy, 30);
+      const target = this.collectibleMgr.findNearest(gx, gy, 25);
       if (target) {
         this.player.isCollecting = true;
         this.player.collectTarget = target;
         this.player.collectTimer = target.def.collectTime / 1000;
+      }
+
       }
     }
 
