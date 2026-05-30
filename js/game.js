@@ -616,7 +616,19 @@ export class Game {
       }
 
       if (this.shop.tab === 'museum') {
-        // 动态展区
+        // 点击展位
+        const slots = this.shop._museumSlots;
+        if (slots) {
+          for (const slot of slots) {
+            if (slot && this._hitTest(slot.x, slot.y, slot.w, slot.h)) {
+              if (this.inventory.donateItem(slot.id)) {
+                this.shop.showMessage(`已捐赠！`);
+              }
+              return;
+            }
+          }
+        }
+        // 威望按钮（二次确认）
         const hallDefs = {
           shell: { exhibits: ['shell_fan','shell_conch','clam','starfish','pearl'], legacy: 'shell_mastery' },
           crustacean: { exhibits: ['crab_sand','crab_rock','urchin','chiton','horseshoe_crab'], legacy: 'crustacean_immunity' },
@@ -625,21 +637,10 @@ export class Game {
         const hallId = this.shop._museumHall || 'shell';
         const hd = hallDefs[hallId];
         const exhibits = hd.exhibits;
-        const gridX = px + 20 * s, gridY = py + 32 * s;
-        for (let i = 0; i < exhibits.length; i++) {
-          const ex = gridX + i * 140 * s;
-          if (this._hitTest(ex, gridY, 120*s, 70*s)) {
-            if (this.inventory.donateItem(exhibits[i])) {
-              this.shop.showMessage(`已捐赠！`);
-            }
-            return;
-          }
-        }
-        // 威望按钮（二次确认）
         const donatedCount = exhibits.filter(e => this.inventory.museum.includes(e)).length;
         if (donatedCount >= exhibits.length && !this.inventory.hasLegacy(hd.legacy)) {
-          const btnX = px + pw/2 - 70*s, btnY = py + 190*s;
-          if (this._hitTest(btnX, btnY, 140*s, 24*s)) {
+          const btnX = px + pw/2 - 70*s, btnY = py + ph - 60*s;
+          if (this._hitTest(btnX, btnY, 140*s, 26*s)) {
             if (this.shop._prestigeConfirm === hallId) {
               const legacy = this.inventory.prestige(hallId);
               if (legacy) {
@@ -656,12 +657,14 @@ export class Game {
           this.shop._prestigeConfirm = null;
         }
         // 点击 ◀ ▶ 切换展区
-        if (this._hitTest(px + 20*s, py + 8*s, 30*s, 20*s)) {
+        const titleW = pw * 0.6;
+        const titleX = px + (pw - titleW) / 2;
+        if (this._hitTest(titleX - 30*s, py + 4*s, 30*s, 20*s)) {
           const halls = ['shell','crustacean','fish'];
           const idx = halls.indexOf(hallId);
           this.shop._museumHall = halls[(idx - 1 + 3) % 3];
         }
-        if (this._hitTest(px + pw - 50*s, py + 8*s, 30*s, 20*s)) {
+        if (this._hitTest(titleX + titleW, py + 4*s, 30*s, 20*s)) {
           const halls = ['shell','crustacean','fish'];
           const idx = halls.indexOf(hallId);
           this.shop._museumHall = halls[(idx + 1) % 3];

@@ -335,31 +335,46 @@ export class ShopScene {
     const hallIdx = halls.findIndex(h => h.id === this._museumHall);
     ctx.fillText(`◀ 博物馆 — ${hall.name} ▶`, px + pw / 2, py + 16 * s);
 
-    // 展位
-    const gridX = px + 20 * s;
-    const gridY = py + 32 * s;
+    // 展位 — 上排3个 + 下排2个
+    const exW = 130 * s, exH = 60 * s, exGap = 8 * s;
+    const row1X = px + (pw - 3 * exW - 2 * exGap) / 2; // 上排居中
+    const row2X = px + (pw - 2 * exW - 1 * exGap) / 2; // 下排居中
+    const row1Y = py + 28 * s;
+    const row2Y = row1Y + exH + 6 * s;
+
+    const positions = [
+      { x: row1X,              y: row1Y },
+      { x: row1X + exW + exGap, y: row1Y },
+      { x: row1X + 2*(exW + exGap), y: row1Y },
+      { x: row2X,              y: row2Y },
+      { x: row2X + exW + exGap, y: row2Y },
+    ];
 
     for (let i = 0; i < hall.exhibits.length; i++) {
-      const ex = gridX + i * 140 * s;
-      const ey = gridY;
+      const ex = positions[i].x;
+      const ey = positions[i].y;
       const donated = this.inventory.museum.includes(hall.exhibits[i]);
 
       ctx.fillStyle = donated ? '#e8e0d0' : '#aaa';
-      ctx.fillRect(ex, ey, 120 * s, 70 * s);
+      ctx.fillRect(ex, ey, exW, exH);
       ctx.strokeStyle = donated ? COLORS.gold : '#888';
       ctx.lineWidth = donated ? 2 : 1;
-      ctx.strokeRect(ex, ey, 120 * s, 70 * s);
+      ctx.strokeRect(ex, ey, exW, exH);
 
       ctx.fillStyle = COLORS.ui_dark;
       ctx.font = `${5 * s}px monospace`;
       ctx.textAlign = 'center';
-      ctx.fillText(donated ? hall.names[i] : '???', ex + 60 * s, ey + 30 * s);
+      ctx.fillText(donated ? hall.names[i] : '???', ex + exW / 2, ey + 24 * s);
 
       if (!donated && this.inventory.items.some(it => it.id === hall.exhibits[i])) {
         ctx.fillStyle = COLORS.gold;
         ctx.font = `${4 * s}px monospace`;
-        ctx.fillText('可捐赠', ex + 60 * s, ey + 50 * s);
+        ctx.fillText('可捐赠', ex + exW / 2, ey + 42 * s);
       }
+
+      // 存位置给点击检测
+      if (!this._museumSlots) this._museumSlots = [];
+      this._museumSlots[i] = { x: ex, y: ey, w: exW, h: exH, id: hall.exhibits[i] };
     }
 
     // 进度
@@ -373,14 +388,12 @@ export class ShopScene {
       const confirming = this._prestigeConfirm === hall.id;
       ctx.fillStyle = confirming ? '#ff6040' : '#c04030';
       const btnX = px + pw / 2 - 70 * s;
-      const btnY = py + ph - 50 * s;
-      ctx.fillRect(btnX, btnY, 140 * s, 24 * s);
+      const btnY = py + ph - 60 * s;
+      ctx.fillRect(btnX, btnY, 140 * s, 26 * s);
       ctx.fillStyle = '#f5f0e0';
       ctx.font = `bold ${5 * s}px monospace`;
       ctx.textAlign = 'center';
-      ctx.fillText(confirming ? '再次点击确认重置!' : '致伟大的海洋', px + pw / 2, btnY + 16 * s);
-      this._museumPrestigeBtn = { x: btnX, y: btnY, w: 140 * s, h: 24 * s };
-      this._museumPrestigeHall = hall.id;
+      ctx.fillText(confirming ? '再次点击确认重置!' : '致伟大的海洋', px + pw / 2, btnY + 17 * s);
     } else if (this.inventory.hasLegacy(hall.legacy)) {
       ctx.fillStyle = COLORS.gold;
       ctx.font = `${5 * s}px monospace`;
