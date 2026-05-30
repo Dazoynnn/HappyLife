@@ -13,6 +13,7 @@ import { Inventory } from './inventory.js';
 import { ShopScene } from './shop.js';
 import { WeatherSystem } from './weather.js';
 import { ShipwreckEvent } from './events.js';
+import { AudioManager } from './audio.js';
 
 export class Game {
   constructor(canvas) {
@@ -30,6 +31,10 @@ export class Game {
     // 天气
     this.weather = new WeatherSystem('sunny');
     this.currentWeather = 'sunny';
+
+    // 音频
+    this.audio = new AudioManager();
+    this.audio.init();
 
     // 事件
     this.shipwreckEvent = null;
@@ -98,6 +103,9 @@ export class Game {
     this.shipwreckEvent = new ShipwreckEvent();
     this._caveSpawned = false;
 
+    // 启动海浪环境音
+    this.audio.playWave();
+
     // 切换场景
     this.scene = SCENE.BEACH;
     this.showBackpack = false;
@@ -105,6 +113,8 @@ export class Game {
   }
 
   returnToVillage() {
+    // 停止海浪音
+    this.audio.stopWave();
     // 结算
     this.scene = SCENE.VILLAGE;
     this.tide.stop();
@@ -174,6 +184,7 @@ export class Game {
 
     canvas.addEventListener('click', (e) => {
       this.mouseClicked = true;
+      this.audio.resume();
     });
 
     canvas.style.cursor = 'default';
@@ -449,6 +460,7 @@ export class Game {
           this.player.takeDamage(dmg);
           this.effects.burstDamage(target.x + 7, target.y + 4);
           this.effects.addFloatingText(target.x, target.y - 5, `-${dmg} HP`, '#c04030', 1);
+          this.audio.playDamage();
           if (dmg > 0) {
             this.renderer.triggerShake(2);
           }
@@ -465,6 +477,9 @@ export class Game {
           if (target.def.rarity === 'rare' || target.def.rarity === 'epic') {
             this.effects.treasureGlow(target.x + 7, target.y + 4);
             this.renderer.triggerShake(1);
+            this.audio.playTreasure();
+          } else {
+            this.audio.playPickup();
           }
         }
       }
@@ -625,10 +640,12 @@ export class Game {
       if (this.input.wasPressed('ArrowDown')) this.shop.selectedSlot = Math.min(Math.max(0, this.inventory.items.length - 1), this.shop.selectedSlot + 1);
       if (this.input.wasPressed('KeyS') && this.shop.selectedSlot < this.inventory.items.length) {
         const val = this.inventory.sellItem(this.shop.selectedSlot);
+        this.audio.playSell();
         this.shop.showMessage(`出售获得 ${val} 金币`);
       }
       if (this.input.wasPressed('KeyA')) {
         const total = this.inventory.sellAll();
+        this.audio.playSell();
         this.shop.showMessage(`全部出售获得 ${total} 金币`);
       }
     }
