@@ -1,6 +1,6 @@
 // game.js — 游戏主循环和场景管理
 
-import { CANVAS_W, CANVAS_H, SCALE, SCENE, MOON_PHASES, COLLECTIBLES, EQUIPMENT } from './data.js';
+import { CANVAS_W, CANVAS_H, SCALE, SCENE, MOON_PHASES, COLLECTIBLES, EQUIPMENT, rollWeather } from './data.js';
 import { InputManager } from './input.js';
 import { Renderer } from './renderer.js';
 import { UIManager } from './ui.js';
@@ -11,6 +11,7 @@ import { CollectibleManager, Collectible } from './collectibles.js';
 import { EffectsManager } from './effects.js';
 import { Inventory } from './inventory.js';
 import { ShopScene } from './shop.js';
+import { WeatherSystem } from './weather.js';
 
 export class Game {
   constructor(canvas) {
@@ -24,6 +25,10 @@ export class Game {
     // 场景
     this.scene = SCENE.VILLAGE;
     this.shop = new ShopScene(this.inventory);
+
+    // 天气
+    this.weather = new WeatherSystem('sunny');
+    this.currentWeather = 'sunny';
 
     // 海滩相关（出海时初始化）
     this.beachMap = null;
@@ -54,6 +59,10 @@ export class Game {
   // ============ 场景切换 ============
 
   startBeachRun() {
+    // 随机天气
+    this.currentWeather = rollWeather();
+    this.weather.setWeather(this.currentWeather);
+
     // 初始化海滩
     this.beachMap = new BeachMap('白沙湾');
 
@@ -186,6 +195,12 @@ export class Game {
   }
 
   _updateBeach(dt) {
+    // 天气更新
+    const lightning = this.weather.update(dt, CANVAS_W, CANVAS_H);
+    if (lightning) {
+      this.renderer.triggerLightningFlash();
+    }
+
     // 潮汐更新
     this.tide.update(dt);
 
@@ -563,7 +578,8 @@ export class Game {
       this.renderer.clear();
       this.renderer.renderBeach(
         this.beachMap, this.tide, this.player,
-        this.collectibleMgr, this.effects, this.gameTime
+        this.collectibleMgr, this.effects, this.gameTime,
+        this.weather
       );
       this.ui.render(this.renderer.ctx, {
         tide: this.tide,

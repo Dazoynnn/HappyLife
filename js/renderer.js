@@ -21,6 +21,7 @@ export class Renderer {
     this.waveTime = 0;
     this.screenShake = 0;
     this.dangerFlash = 0;
+    this.flashAlpha = 0;   // 闪电闪屏 alpha
 
     // 天空渐变缓存
     this._skyGradient = null;
@@ -28,7 +29,7 @@ export class Renderer {
 
   // ============ 海滩场景渲染 ============
 
-  renderBeach(beachMap, tide, player, collectibleMgr, effectsMgr, time) {
+  renderBeach(beachMap, tide, player, collectibleMgr, effectsMgr, time, weather = null) {
     const ctx = this.bctx;
     this.waveTime += 0.05;
 
@@ -38,22 +39,27 @@ export class Renderer {
     // 2. 海滩 tile
     this._drawMap(ctx, beachMap);
 
-    // 3. 收集物
+    // 3. 天气效果（雨滴等，在收集物之前）
+    if (weather) {
+      weather.drawRain(ctx, 1); // 在 buffer 上以 1x 绘制
+    }
+
+    // 4. 收集物
     this._drawCollectibles(ctx, collectibleMgr);
 
-    // 4. 玩家
+    // 5. 玩家
     this._drawPlayer(ctx, player);
 
-    // 5. 潮水覆盖层
+    // 6. 潮水覆盖层
     this._drawWaterOverlay(ctx, beachMap, tide);
 
-    // 6. 特效
+    // 7. 特效
     effectsMgr.draw(ctx, 2);
 
-    // 7. 危险边缘泛红
+    // 8. 危险边缘泛红
     this._drawDangerVignette(ctx, tide);
 
-    // 8. 屏幕震动
+    // 屏幕震动
     let shakeX = 0, shakeY = 0;
     if (this.screenShake > 0) {
       shakeX = (Math.random() - 0.5) * this.screenShake * 2;
@@ -61,7 +67,7 @@ export class Renderer {
       this.screenShake = Math.max(0, this.screenShake - 0.05);
     }
 
-    // 9. 放大渲染到主 canvas
+    // 放大渲染到主 canvas
     this.ctx.clearRect(0, 0, CANVAS_W * SCALE, CANVAS_H * SCALE);
     this.ctx.drawImage(
       this.buffer,
@@ -69,14 +75,21 @@ export class Renderer {
       0, 0, CANVAS_W * SCALE, CANVAS_H * SCALE
     );
 
-    // 10. 危险闪屏
+    // 闪电闪屏
+    if (this.flashAlpha > 0) {
+      this.ctx.fillStyle = `rgba(255,255,255,${this.flashAlpha})`;
+      this.ctx.fillRect(0, 0, CANVAS_W * SCALE, CANVAS_H * SCALE);
+      this.flashAlpha = Math.max(0, this.flashAlpha - 0.04);
+    }
+
+    // 危险闪屏
     if (this.dangerFlash > 0) {
       this.ctx.fillStyle = `rgba(192,64,48,${this.dangerFlash * 0.3})`;
       this.ctx.fillRect(0, 0, CANVAS_W * SCALE, CANVAS_H * SCALE);
       this.dangerFlash = Math.max(0, this.dangerFlash - 0.03);
     }
 
-    // 11. 交互提示（画在大 canvas 上）
+    // 交互提示（画在大 canvas 上）
     this._drawInteractionPrompt(player, collectibleMgr);
   }
 
@@ -250,6 +263,10 @@ export class Renderer {
 
   triggerDangerFlash() {
     this.dangerFlash = 1;
+  }
+
+  triggerLightningFlash() {
+    this.flashAlpha = 1.0;
   }
 
   // ============ UI 渲染（在大 canvas 上） ============
