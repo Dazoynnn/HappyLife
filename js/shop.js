@@ -1,0 +1,364 @@
+// shop.js — 村庄/商店场景
+
+import { CANVAS_W, CANVAS_H, SCALE, COLORS, EQUIPMENT, MOON_NAMES, MOON_PHASES } from './data.js';
+
+export class ShopScene {
+  constructor(inventory) {
+    this.inventory = inventory;
+    this.selectedSlot = -1;
+    this.tab = 'sell'; // sell / equipment / aquarium / museum
+    this.message = '';
+    this.messageTimer = 0;
+  }
+
+  showMessage(msg) {
+    this.message = msg;
+    this.messageTimer = 2.5;
+  }
+
+  update(dt) {
+    if (this.messageTimer > 0) this.messageTimer -= dt;
+  }
+
+  render(ctx) {
+    // 村庄背景
+    this._drawVillageBg(ctx);
+
+    // 四个建筑按钮
+    this._drawBuildings(ctx);
+
+    // 主面板
+    this._drawPanel(ctx);
+
+    // 消息
+    if (this.messageTimer > 0) {
+      ctx.fillStyle = COLORS.gold;
+      ctx.font = `${7 * SCALE}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText(this.message, CANVAS_W * SCALE / 2, CANVAS_H * SCALE - 20 * SCALE);
+    }
+  }
+
+  _drawVillageBg(ctx) {
+    // 天空
+    const grad = ctx.createLinearGradient(0, 0, 0, CANVAS_H * SCALE);
+    grad.addColorStop(0, '#87ceeb');
+    grad.addColorStop(0.6, '#e8b878');
+    grad.addColorStop(1, '#d4a860');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, CANVAS_W * SCALE, CANVAS_H * SCALE);
+
+    // 草地
+    ctx.fillStyle = '#8ab860';
+    ctx.fillRect(0, CANVAS_H * SCALE * 0.6, CANVAS_W * SCALE, CANVAS_H * SCALE * 0.4);
+
+    // 沙滩边缘
+    ctx.fillStyle = COLORS.sand_dry;
+    ctx.fillRect(0, CANVAS_H * SCALE * 0.7, CANVAS_W * SCALE, CANVAS_H * SCALE * 0.3);
+
+    // 大海远景
+    ctx.fillStyle = COLORS.water_shallow;
+    ctx.fillRect(0, 0, CANVAS_W * SCALE, CANVAS_H * SCALE * 0.15);
+
+    // 简单的小屋
+    this._drawHut(ctx, 80 * SCALE, 280 * SCALE);
+    this._drawHut(ctx, 300 * SCALE, 290 * SCALE);
+    this._drawHut(ctx, 600 * SCALE, 270 * SCALE);
+
+    // 渔网架
+    ctx.strokeStyle = '#8a7a6a';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(700 * SCALE, 350 * SCALE);
+    ctx.lineTo(700 * SCALE, 420 * SCALE);
+    ctx.lineTo(760 * SCALE, 420 * SCALE);
+    ctx.stroke();
+  }
+
+  _drawHut(ctx, x, y) {
+    const s = SCALE;
+    // 墙
+    ctx.fillStyle = '#d8c8a8';
+    ctx.fillRect(x, y, 40 * s, 30 * s);
+    // 屋顶
+    ctx.fillStyle = '#8a5a3a';
+    ctx.beginPath();
+    ctx.moveTo(x - 5 * s, y);
+    ctx.lineTo(x + 20 * s, y - 18 * s);
+    ctx.lineTo(x + 45 * s, y);
+    ctx.fill();
+    // 门
+    ctx.fillStyle = '#5a3a20';
+    ctx.fillRect(x + 15 * s, y + 14 * s, 10 * s, 16 * s);
+    // 窗
+    ctx.fillStyle = '#ffe8a0';
+    ctx.fillRect(x + 6 * s, y + 10 * s, 6 * s, 6 * s);
+  }
+
+  _drawBuildings(ctx) {
+    const s = SCALE;
+    const buildings = [
+      { label: '鱼市', x: 160, y: 380, key: 'Tab' },
+      { label: '水族箱', x: 320, y: 390, key: '2' },
+      { label: '博物馆', x: 480, y: 385, key: '3' },
+      { label: '工坊', x: 640, y: 375, key: '4' },
+    ];
+
+    for (const b of buildings) {
+      // 建筑基座
+      ctx.fillStyle = this.tab === 'sell' && b.label === '鱼市' ? '#e8d8c0' :
+                       this.tab === 'aquarium' && b.label === '水族箱' ? '#e8d8c0' :
+                       this.tab === 'museum' && b.label === '博物馆' ? '#e8d8c0' :
+                       this.tab === 'equipment' && b.label === '工坊' ? '#e8d8c0' : '#d0c0a0';
+      ctx.fillRect(b.x * s, b.y * s, 80 * s, 60 * s);
+      ctx.strokeStyle = '#a09080';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(b.x * s, b.y * s, 80 * s, 60 * s);
+
+      // 名称
+      ctx.fillStyle = COLORS.ui_dark;
+      ctx.font = `${6 * s}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText(b.label, (b.x + 40) * s, (b.y + 36) * s);
+    }
+
+    // 【出海】按钮
+    const goX = (CANVAS_W / 2 - 80) * s;
+    const goY = 520 * s;
+    ctx.fillStyle = '#6a4a30';
+    ctx.fillRect(goX, goY, 160 * s, 36 * s);
+    ctx.strokeStyle = '#8a6a40';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(goX, goY, 160 * s, 36 * s);
+    ctx.fillStyle = COLORS.red;
+    ctx.font = `bold ${9 * s}px monospace`;
+    ctx.fillText('出 海', CANVAS_W * s / 2, goY + 26 * s);
+
+    // 当前日/月相
+    ctx.fillStyle = COLORS.ui_dark;
+    ctx.font = `${5 * s}px monospace`;
+    ctx.textAlign = 'right';
+    ctx.fillText(`金币: ${this.inventory.gold}`, CANVAS_W * s - 20 * s, 380 * s);
+    ctx.fillText(`水族箱: ${this.inventory.aquariumCount}只`, CANVAS_W * s - 20 * s, 400 * s);
+    ctx.fillText(`博物馆: ${this.inventory.museumCount}件`, CANVAS_W * s - 20 * s, 420 * s);
+  }
+
+  _drawPanel(ctx) {
+    const s = SCALE;
+    const px = 40 * s;
+    const py = 60 * s;
+    const pw = CANVAS_W * s - 80 * s;
+    const ph = 240 * s;
+
+    ctx.fillStyle = 'rgba(245,240,224,0.95)';
+    ctx.fillRect(px, py, pw, ph);
+    ctx.strokeStyle = '#b8a090';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(px, py, pw, ph);
+
+    switch (this.tab) {
+      case 'sell':
+        this._drawSellTab(ctx, px, py, pw, ph);
+        break;
+      case 'equipment':
+        this._drawEquipmentTab(ctx, px, py, pw, ph);
+        break;
+      case 'aquarium':
+        this._drawAquariumTab(ctx, px, py, pw, ph);
+        break;
+      case 'museum':
+        this._drawMuseumTab(ctx, px, py, pw, ph);
+        break;
+    }
+  }
+
+  _drawSellTab(ctx, px, py, pw, ph) {
+    const s = SCALE;
+    ctx.fillStyle = COLORS.ui_dark;
+    ctx.font = `bold ${7 * s}px monospace`;
+    ctx.textAlign = 'left';
+    ctx.fillText('鱼市 — 出售战利品', px + 12 * s, py + 16 * s);
+
+    const items = this.inventory.items;
+    if (items.length === 0) {
+      ctx.fillStyle = '#888';
+      ctx.font = `${6 * s}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText('背包空空如也，先去赶海吧！', px + pw / 2, py + 80 * s);
+      return;
+    }
+
+    // 物品列表
+    const listY = py + 28 * s;
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const def = this._getCollectibleDefSync(item.id) || { name: item.id, value: 0 };
+      const iy = listY + i * 24 * s;
+
+      if (i === this.selectedSlot) {
+        ctx.fillStyle = '#d4a84040';
+        ctx.fillRect(px + 8 * s, iy - s, pw - 16 * s, 22 * s);
+      }
+
+      ctx.fillStyle = COLORS.ui_dark;
+      ctx.font = `${6 * s}px monospace`;
+      ctx.textAlign = 'left';
+      ctx.fillText(`${def.name} x${item.count}`, px + 16 * s, iy + 10 * s);
+
+      const itemValue = def.value * item.count;
+
+      ctx.textAlign = 'right';
+      ctx.fillText(`${itemValue} 金币`, px + pw - 16 * s, iy + 10 * s);
+    }
+
+    // 操作提示
+    ctx.fillStyle = '#888';
+    ctx.font = `${5 * s}px monospace`;
+    ctx.textAlign = 'left';
+    ctx.fillText('[↑↓]选择 [S]出售选中 [A]全部出售 [数字键1-4]切换建筑', px + 12 * s, py + ph - 16 * s);
+  }
+
+  _drawEquipmentTab(ctx, px, py, pw, ph) {
+    const s = SCALE;
+    const equips = [
+      { id: 'shovel_iron', name: '铁铲', cost: 200, desc: '采集速度+50%，挖掘有加成' },
+      { id: 'gloves_leather', name: '皮革手套', cost: 150, desc: '减少15点攻击伤害' },
+      { id: 'shoes_grip', name: '防滑鞋', cost: 180, desc: '礁石上不会打滑' },
+      { id: 'basket_medium', name: '中型竹篓', cost: 300, desc: '容量提升至16格/30kg' },
+    ];
+
+    ctx.fillStyle = COLORS.ui_dark;
+    ctx.font = `bold ${7 * s}px monospace`;
+    ctx.textAlign = 'left';
+    ctx.fillText('工坊 — 装备升级', px + 12 * s, py + 16 * s);
+    ctx.fillText(`当前金币: ${this.inventory.gold}`, px + 12 * s, py + 28 * s);
+
+    for (let i = 0; i < equips.length; i++) {
+      const eq = equips[i];
+      const ey = py + 44 * s + i * 36 * s;
+      const canBuy = this.inventory.gold >= eq.cost;
+
+      ctx.fillStyle = i === this.selectedSlot ? '#d4a84040' : 'transparent';
+      ctx.fillRect(px + 8 * s, ey - s, pw - 16 * s, 32 * s);
+
+      ctx.fillStyle = COLORS.ui_dark;
+      ctx.font = `${6 * s}px monospace`;
+      ctx.textAlign = 'left';
+      ctx.fillText(`${eq.name} — ${eq.desc}`, px + 16 * s, ey + 12 * s);
+
+      ctx.fillStyle = canBuy ? COLORS.gold : '#888';
+      ctx.font = `${6 * s}px monospace`;
+      ctx.textAlign = 'right';
+      ctx.fillText(`${eq.cost} 金币 [${i + 1}]购买`, px + pw - 16 * s, ey + 12 * s);
+    }
+  }
+
+  _drawAquariumTab(ctx, px, py, pw, ph) {
+    const s = SCALE;
+    ctx.fillStyle = COLORS.ui_dark;
+    ctx.font = `bold ${7 * s}px monospace`;
+    ctx.textAlign = 'left';
+    ctx.fillText('水族箱 — 活体养殖', px + 12 * s, py + 16 * s);
+
+    // 水背景
+    const waterY = py + 28 * s;
+    const waterH = ph - 60 * s;
+    ctx.fillStyle = '#7ec8d8';
+    ctx.fillRect(px + 10 * s, waterY, pw - 20 * s, waterH);
+    // 水波纹
+    ctx.fillStyle = '#ffffff20';
+    for (let y = waterY; y < waterY + waterH; y += 12 * s) {
+      ctx.fillRect(px + 10 * s, y, pw - 20 * s, 1 * s);
+    }
+
+    // 水族箱生物
+    const aquarium = this.inventory.aquarium;
+    if (aquarium.length === 0) {
+      ctx.fillStyle = '#ffffff80';
+      ctx.font = `${6 * s}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText('水族箱是空的，把活的生物放进来吧！', px + pw / 2, waterY + waterH / 2);
+    } else {
+      for (let i = 0; i < aquarium.length; i++) {
+        const a = aquarium[i];
+        ctx.fillStyle = '#fff';
+        ctx.font = `${6 * s}px monospace`;
+        ctx.textAlign = 'left';
+        ctx.fillText(`${a.name} x${a.count}  产出碎片: ${(a.output * a.count).toFixed(1)}/天`, px + 20 * s, waterY + 20 * s + i * 20 * s);
+      }
+    }
+
+    // 收集产出
+    const frags = this.inventory.collectAquariumOutput();
+    ctx.fillStyle = COLORS.ui_dark;
+    ctx.font = `${5 * s}px monospace`;
+    ctx.textAlign = 'left';
+    ctx.fillText(`海灵珠碎片: ${frags.toFixed(1)} (10碎片=1海灵珠)`, px + 12 * s, py + ph - 16 * s);
+  }
+
+  _drawMuseumTab(ctx, px, py, pw, ph) {
+    const s = SCALE;
+    ctx.fillStyle = COLORS.ui_dark;
+    ctx.font = `bold ${7 * s}px monospace`;
+    ctx.textAlign = 'left';
+    ctx.fillText('博物馆 — 贝类馆', px + 12 * s, py + 16 * s);
+
+    // 展位
+    const exhibits = ['shell_fan', 'shell_conch', 'clam', 'starfish', 'pearl'];
+    const exhibitNames = ['扇贝壳', '海螺壳', '蛤蜊', '海星', '珍珠'];
+    const gridX = px + 20 * s;
+    const gridY = py + 32 * s;
+
+    for (let i = 0; i < exhibits.length; i++) {
+      const ex = gridX + i * 140 * s;
+      const ey = gridY;
+      const donated = this.inventory.museum.includes(exhibits[i]);
+
+      ctx.fillStyle = donated ? '#e8e0d0' : '#aaa';
+      ctx.fillRect(ex, ey, 120 * s, 80 * s);
+      ctx.strokeStyle = donated ? COLORS.gold : '#888';
+      ctx.lineWidth = donated ? 2 : 1;
+      ctx.strokeRect(ex, ey, 120 * s, 80 * s);
+
+      ctx.fillStyle = COLORS.ui_dark;
+      ctx.font = `${5 * s}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText(donated ? exhibitNames[i] : '???', ex + 60 * s, ey + 40 * s);
+
+      if (!donated && this.inventory.items.some(it => it.id === exhibits[i])) {
+        // 可捐赠提示
+        ctx.fillStyle = COLORS.gold;
+        ctx.font = `${4 * s}px monospace`;
+        ctx.fillText('可捐赠', ex + 60 * s, ey + 60 * s);
+      }
+    }
+
+    // 进度
+    const donatedCount = exhibits.filter(e => this.inventory.museum.includes(e)).length;
+    ctx.fillStyle = COLORS.ui_dark;
+    ctx.font = `${6 * s}px monospace`;
+    ctx.textAlign = 'left';
+    ctx.fillText(`展区进度: ${donatedCount}/${exhibits.length}`, px + 12 * s, py + ph - 40 * s);
+    ctx.fillText('[D]捐赠选中物品', px + 12 * s, py + ph - 20 * s);
+
+    if (donatedCount === exhibits.length) {
+      ctx.fillStyle = COLORS.gold;
+      ctx.font = `${7 * s}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText('展区完成！可以触发"致伟大的海洋"', px + pw / 2, py + ph - 50 * s);
+    }
+  }
+
+  _getCollectibleDefSync(id) {
+    const defs = {
+      'shell_fan': { name: '扇贝壳', value: 5, category: 'shell' },
+      'shell_conch': { name: '海螺壳', value: 8, category: 'shell' },
+      'clam': { name: '蛤蜊', value: 15, category: 'shell', alive: true },
+      'crab_sand': { name: '沙蟹', value: 20, category: 'crustacean', alive: true },
+      'starfish': { name: '海星', value: 35, category: 'living', alive: true },
+      'coin_ancient': { name: '古钱币', value: 80, category: 'treasure' },
+      'pearl': { name: '珍珠', value: 120, category: 'treasure' },
+    };
+    return defs[id] || null;
+  }
+}
