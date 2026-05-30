@@ -12,6 +12,7 @@ import { EffectsManager } from './effects.js';
 import { Inventory } from './inventory.js';
 import { ShopScene } from './shop.js';
 import { WeatherSystem } from './weather.js';
+import { ShipwreckEvent } from './events.js';
 
 export class Game {
   constructor(canvas) {
@@ -29,6 +30,9 @@ export class Game {
     // 天气
     this.weather = new WeatherSystem('sunny');
     this.currentWeather = 'sunny';
+
+    // 事件
+    this.shipwreckEvent = null;
 
     // 海滩相关（出海时初始化）
     this.beachMap = null;
@@ -89,6 +93,9 @@ export class Game {
     // 初始化收集物
     this.collectibleMgr = new CollectibleManager(this.beachMap);
     this.collectibleMgr.spawnAll(moonEffect);
+
+    // 初始化事件
+    this.shipwreckEvent = new ShipwreckEvent();
 
     // 切换场景
     this.scene = SCENE.BEACH;
@@ -204,7 +211,51 @@ export class Game {
     // 潮汐更新
     this.tide.update(dt);
 
+    // 沉船事件更新
+    if (this.shipwreckEvent?.active) {
+      this.shipwreckEvent.update(dt);
+      if (this.shipwreckEvent.isExpired) {
+        this.tide.elapsed += 20; // 潮水加速恢复
+        this.shipwreckEvent.active = false;
+        this.renderer.triggerShake(3);
+      }
+    } else if (this.shipwreckEvent) {
+      this.shipwreckEvent.tryTrigger(this.beachMap, this.tide);
+    }
+
     // 鼠标点击 —— 海滩上点击收集物
+    const clicked = this._consumeClick();
+    if (clicked && !this.showBackpack && !this.player.isCollecting) {
+      // 转换鼠标坐标到游戏坐标 (480x320)
+      const gx = this.mouseX / SCALE;
+      const gy = this.mouseY / SCALE;
+
+      // 先检查是否点击沉船
+      if (this.shipwreckEvent?.active && !this.shipwreckEvent.looted && this.shipwreckEvent.hitTest(gx, gy)) {
+        const loot = this.shipwreckEvent.spawnLoot();
+        for (const item of loot) {
+          this.collectibleMgr.items.push(item);
+        }
+        const equipId = ShipwreckEvent.rollEquipment();
+        if (equipId) {
+          const equipDef = EQUIPMENT[equipId];
+          this.player.addItem(equipId + '_found', {
+            name: equipDef?.name || '神秘装备', weight: 0.1, stackSize: 1,
+            value: equipDef?.cost || 100, collectTime: 0,
+          }, 1);
+        }
+        this.effects.treasureGlow(this.shipwreckEvent.x, this.shipwreckEvent.y);
+        this.renderer.triggerShake(4);
+        this.shop.showMessage('洗劫沉船！大量珍宝！');
+      }
+
+      const target = this.collectibleMgr.findNearest(gx, gy, 30);
+      if (target) {
+        this.player.isCollecting = true;
+        this.player.collectTarget = target;
+        this.player.collectTimer = target.def.collectTime / 1000;
+      }
+    }
     const clicked = this._consumeClick();
     if (clicked && !this.showBackpack && !this.player.isCollecting) {
       // 转换鼠标坐标到游戏坐标 (480x320)
@@ -579,7 +630,7 @@ export class Game {
       this.renderer.renderBeach(
         this.beachMap, this.tide, this.player,
         this.collectibleMgr, this.effects, this.gameTime,
-        this.weather
+        this.weather, this.shipwreckEvent
       );
       this.ui.render(this.renderer.ctx, {
         tide: this.tide,

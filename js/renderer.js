@@ -29,8 +29,9 @@ export class Renderer {
 
   // ============ 海滩场景渲染 ============
 
-  renderBeach(beachMap, tide, player, collectibleMgr, effectsMgr, time, weather = null) {
+  renderBeach(beachMap, tide, player, collectibleMgr, effectsMgr, time, weather = null, shipwreckEvent = null) {
     const ctx = this.bctx;
+    this._shipwreckEvent = shipwreckEvent;
     this.waveTime += 0.05;
 
     // 1. 天空背景渐变
@@ -38,6 +39,11 @@ export class Renderer {
 
     // 2. 海滩 tile
     this._drawMap(ctx, beachMap);
+
+    // 2.5. 沉船残骸
+    if (this._shipwreckEvent?.active) {
+      this._drawShipwreck(ctx, this._shipwreckEvent);
+    }
 
     // 3. 天气效果（雨滴等，在收集物之前）
     if (weather) {
@@ -215,6 +221,47 @@ export class Renderer {
         ctx.fillRect(x + (Math.random() - 0.5) * 4, waveY - 2, 1, 1);
       }
     }
+  }
+
+  _drawShipwreck(ctx, event) {
+    if (!event?.active) return;
+    const x = event.x, y = event.y;
+    // 船体
+    ctx.fillStyle = '#5a3a20';
+    ctx.beginPath();
+    ctx.moveTo(x - 30, y + 10);
+    ctx.lineTo(x - 20, y - 5);
+    ctx.lineTo(x + 20, y - 5);
+    ctx.lineTo(x + 30, y + 10);
+    ctx.lineTo(x + 15, y + 25);
+    ctx.lineTo(x - 15, y + 25);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#3a2010';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    // 桅杆
+    ctx.strokeStyle = '#6a6a6a';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x, y - 5);
+    ctx.lineTo(x - 10, y - 25);
+    ctx.stroke();
+    // 苔痕
+    ctx.fillStyle = '#3a5a2a';
+    ctx.fillRect(x - 12, y + 18, 8, 4);
+    ctx.fillRect(x + 5, y + 20, 6, 3);
+    // 发光提示（还没被洗劫）
+    if (!event.looted) {
+      ctx.fillStyle = `rgba(212,168,64,${0.25 + Math.sin(Date.now() / 500) * 0.15})`;
+      ctx.beginPath();
+      ctx.arc(x, y + 12, 30, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // 残骸碎片
+    ctx.fillStyle = '#8a6a4a';
+    ctx.fillRect(x - 35, y + 22, 10, 3);
+    ctx.fillRect(x + 28, y + 18, 6, 2);
   }
 
   _drawDangerVignette(ctx, tide) {
