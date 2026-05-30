@@ -268,18 +268,6 @@ export class Game {
         this.player.collectTimer = target.def.collectTime / 1000;
       }
     }
-    const clicked = this._consumeClick();
-    if (clicked && !this.showBackpack && !this.player.isCollecting) {
-      // 转换鼠标坐标到游戏坐标 (480x320)
-      const gx = this.mouseX / SCALE;
-      const gy = this.mouseY / SCALE;
-      const target = this.collectibleMgr.findNearest(gx, gy, 30);
-      if (target) {
-        this.player.isCollecting = true;
-        this.player.collectTarget = target;
-        this.player.collectTimer = target.def.collectTime / 1000;
-      }
-    }
 
     // 背包切换
     if (this.input.wasPressed('Tab') || this.input.wasPressed('KeyB')) {
