@@ -724,7 +724,7 @@ export class Game {
         this.audio.playSell();
         this.shop.showMessage(`出售获得 ${val} 金币`);
       }
-      if (this.input.wasPressed('KeyA')) {
+      if (this.input.wasPressed('KeyX')) {
         const total = this.inventory.sellAll();
         this.audio.playSell();
         this.shop.showMessage(`全部出售获得 ${total} 金币`);
@@ -900,6 +900,6 @@ export class Game {
     ctx.fillStyle = '#ddd';
     ctx.font = `${5 * s}px monospace`;
     ctx.textAlign = 'center';
-    ctx.fillText('[Q/W/E/R/T]切换建筑 [S]出售 [A]全部出售 [方向键]选择 [空格/回车]出海赶潮！', CANVAS_W * s / 2, CANVAS_H * s - 8 * s);
+    ctx.fillText('[Q/W/E/R/T]切换建筑 [S]出售 [X]全部出售 [方向键]选择 [空格/回车]出海赶潮！', CANVAS_W * s / 2, CANVAS_H * s - 8 * s);
   }
 }

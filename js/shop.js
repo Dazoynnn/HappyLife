@@ -223,7 +223,7 @@ export class ShopScene {
     ctx.fillStyle = '#888';
     ctx.font = `${5 * s}px monospace`;
     ctx.textAlign = 'left';
-    ctx.fillText('[↑↓]选择 [S]出售选中 [A]全部出售 [数字键1-4]切换建筑', px + 12 * s, py + ph - 16 * s);
+    ctx.fillText('[↑↓]选择 [S]出售选中 [X]全部出售 [Q/W/E/R/T]切换建筑', px + 12 * s, py + ph - 16 * s);
   }
 
   _drawEquipmentTab(ctx, px, py, pw, ph) {
