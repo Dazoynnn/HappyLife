@@ -222,9 +222,13 @@ export class ShopScene {
     const s = SCALE;
     const equips = [
       { id: 'shovel_iron', name: '铁铲', cost: 200, desc: '采集速度+50%，挖掘有加成' },
-      { id: 'gloves_leather', name: '皮革手套', cost: 150, desc: '减少15点攻击伤害' },
-      { id: 'shoes_grip', name: '防滑鞋', cost: 180, desc: '礁石上不会打滑' },
-      { id: 'basket_medium', name: '中型竹篓', cost: 300, desc: '容量提升至16格/30kg' },
+      { id: 'coral_pick', name: '珊瑚镐', cost: 250, desc: '礁石区效率+200%' },
+      { id: 'tongs_bamboo', name: '竹夹', cost: 120, desc: '安全采集螃蟹/海胆' },
+      { id: 'gloves_leather', name: '皮革手套', cost: 150, desc: '减少15点伤害' },
+      { id: 'shoes_grip', name: '防滑鞋', cost: 180, desc: '礁石上不打滑' },
+      { id: 'boots_iron', name: '铁头靴', cost: 220, desc: '免疫尖石伤害，移速-15%' },
+      { id: 'basket_medium', name: '中型竹篓', cost: 300, desc: '容量16格/30kg' },
+      { id: 'headlamp', name: '头灯', cost: 180, desc: '洞穴/深水视野+50%' },
     ];
 
     ctx.fillStyle = COLORS.ui_dark;

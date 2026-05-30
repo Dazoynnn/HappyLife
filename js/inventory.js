@@ -13,6 +13,11 @@ export class Inventory {
     this.legacies = [];  // 已获得的永久遗产 id 列表
     this.seaPearlFragments = 0; // 海灵珠碎片
     this.seaPearls = 0;        // 海灵珠数量
+    // 已购装备
+    this.equippedTool = null;
+    this.equippedGloves = null;
+    this.equippedShoes = null;
+    this.equippedHeadlamp = null;
   }
 
   get currentWeight() {

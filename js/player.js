@@ -170,8 +170,12 @@ export class Player {
 
   // 受到伤害
   takeDamage(amount) {
+    // 竹夹免疫螃蟹/海胆伤害
+    if (this.inventory?.equippedTool === 'tongs_bamboo') {
+      amount = 0;
+    }
     // 手套减伤
-    if (this.equipment.gloves) {
+    if (amount > 0 && this.inventory?.equippedGloves === 'gloves_leather') {
       amount = Math.max(0, amount - 15);
     }
     this.hp = Math.max(0, this.hp - amount);
@@ -203,7 +207,13 @@ export class Player {
   update(dt, input, isRunning, tideLevel, beachMap) {
     // 移动
     const dir = input.direction;
-    const speed = isRunning ? this.currentRunSpeed : this.currentSpeed;
+    let speed = isRunning ? this.currentRunSpeed : this.currentSpeed;
+
+    // 铁头靴减速
+    if (this.inventory?.equippedShoes === 'boots_iron') {
+      speed *= 0.85;
+    }
+
     this.velocityX = dir.x * speed;
     this.velocityY = dir.y * speed;
 
@@ -215,7 +225,6 @@ export class Player {
     newY = Math.max(4, Math.min(CANVAS_H - this.height - 4, newY));
 
     // 简易碰撞检测（后续可扩展礁石碰撞）
-    // 对于 MVP，只限制不能进入深水区太远
     const tileY = Math.floor(newY / TILE_SIZE);
     if (tileY < beachMap.height) {
       this.x = newX;

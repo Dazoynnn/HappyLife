@@ -694,14 +694,26 @@ export class Game {
     }
     this.inventory.gold -= def.cost;
 
-    // 应用装备效果
-    if (def.slot === 'backpack') {
-      this.inventory.slots = def.stats.capacity;
-      this.inventory.maxWeight = def.stats.maxWeight;
-      this.shop.showMessage(`购买了${def.name}！容量提升`);
-    } else {
-      this.shop.showMessage(`购买了${def.name}！`);
+    switch (def.slot) {
+      case 'backpack':
+        this.inventory.slots = def.stats.capacity;
+        this.inventory.maxWeight = def.stats.maxWeight;
+        break;
+      case 'gloves':
+        this.inventory.equippedGloves = equipId;
+        break;
+      case 'shoes':
+        this.inventory.equippedShoes = equipId;
+        break;
+      case 'tool':
+        this.inventory.equippedTool = equipId;
+        break;
+      case 'headlamp':
+        this.inventory.equippedHeadlamp = equipId;
+        break;
     }
+    this.audio.playSell();
+    this.shop.showMessage(`购买了${def.name}！`);
   }
 
   // ============ 渲染 ============
