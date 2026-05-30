@@ -101,11 +101,11 @@ export class ShopScene {
   _drawBuildings(ctx) {
     const s = SCALE;
     const buildings = [
-      { label: '鱼市', x: 160, y: 380, key: 'Tab' },
-      { label: '水族箱', x: 320, y: 390, key: '2' },
-      { label: '博物馆', x: 480, y: 385, key: '3' },
-      { label: '工坊', x: 640, y: 375, key: '4' },
-      { label: '海图', x: 720, y: 380, key: '5' },
+      { label: '鱼市 [Q]', x: 160, y: 380, key: 'Q' },
+      { label: '水族箱 [W]', x: 320, y: 390, key: 'W' },
+      { label: '博物馆 [E]', x: 480, y: 385, key: 'E' },
+      { label: '工坊 [R]', x: 640, y: 375, key: 'R' },
+      { label: '海图 [T]', x: 720, y: 380, key: 'T' },
     ];
 
     for (const b of buildings) {

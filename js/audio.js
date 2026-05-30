@@ -69,9 +69,20 @@ export class AudioManager {
       this._waveSource.buffer = buffer;
       const filter = this.ctx.createBiquadFilter();
       filter.type = 'lowpass';
-      filter.frequency.value = 500;
+      filter.frequency.value = 400;
       this._waveGain = this.ctx.createGain();
-      this._waveGain.gain.value = 0.05;
+      this._waveGain.gain.value = 0.02;
+      // LFO 模拟海浪起伏
+      const lfo = this.ctx.createOscillator();
+      const lfoGain = this.ctx.createGain();
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.08; // 8秒一个周期
+      lfoGain.gain.value = 0.03;
+      lfo.connect(lfoGain);
+      lfoGain.connect(this._waveGain.gain);
+      lfo.start();
+      this._waveLFO = lfo;
+      this._waveLFOGain = lfoGain;
       this._waveSource.connect(filter);
       filter.connect(this._waveGain);
       this._waveGain.connect(this.ctx.destination);
@@ -82,13 +93,14 @@ export class AudioManager {
 
   stopWave() {
     try {
-      if (this._waveSource) {
-        this._waveSource.stop();
-        this._waveSource.disconnect();
-      }
+      if (this._waveSource) { this._waveSource.stop(); this._waveSource.disconnect(); }
       if (this._waveGain) this._waveGain.disconnect();
+      if (this._waveLFO) { this._waveLFO.stop(); this._waveLFO.disconnect(); }
+      if (this._waveLFOGain) this._waveLFOGain.disconnect();
     } catch (e) { /* ignore */ }
     this._waveSource = null;
     this._waveGain = null;
+    this._waveLFO = null;
+    this._waveLFOGain = null;
   }
 }

@@ -345,9 +345,16 @@ export class Game {
       return;
     }
 
-    // 返回村庄
+    // 返回村庄（需双击确认）
     if (this.input.wasPressed('Escape')) {
-      this.returnToVillage();
+      const now = Date.now();
+      if (this._escTimer && now - this._escTimer < 1500) {
+        this._escTimer = 0;
+        this.returnToVillage();
+      } else {
+        this._escTimer = now;
+        this.shop.showMessage('再次按 Esc 确认返回村庄（会结算）');
+      }
       return;
     }
 
@@ -507,10 +514,11 @@ export class Game {
   }
 
   _updateBackpackInput() {
+    const maxSlot = Math.max(0, this.inventory.items.length - 1);
     if (this.input.wasPressed('ArrowUp')) this.backpackSlotSelected = Math.max(0, this.backpackSlotSelected - 4);
-    if (this.input.wasPressed('ArrowDown')) this.backpackSlotSelected = Math.min(this.inventory.totalSlots - 1, this.backpackSlotSelected + 4);
+    if (this.input.wasPressed('ArrowDown')) this.backpackSlotSelected = Math.min(maxSlot, this.backpackSlotSelected + 4);
     if (this.input.wasPressed('ArrowLeft')) this.backpackSlotSelected = Math.max(0, this.backpackSlotSelected - 1);
-    if (this.input.wasPressed('ArrowRight')) this.backpackSlotSelected = Math.min(this.inventory.totalSlots - 1, this.backpackSlotSelected + 1);
+    if (this.input.wasPressed('ArrowRight')) this.backpackSlotSelected = Math.min(maxSlot, this.backpackSlotSelected + 1);
 
     if (this.input.wasPressed('KeyS') && this.backpackSlotSelected < this.inventory.items.length) {
       const val = this.inventory.sellItem(this.backpackSlotSelected);
@@ -877,6 +885,6 @@ export class Game {
     ctx.fillStyle = '#ddd';
     ctx.font = `${5 * s}px monospace`;
     ctx.textAlign = 'center';
-    ctx.fillText('[Q/W/E/R]切换建筑 [S]出售 [A]全部出售 [方向键]选择 [空格/回车]出海赶潮！', CANVAS_W * s / 2, CANVAS_H * s - 8 * s);
+    ctx.fillText('[Q/W/E/R/T]切换建筑 [S]出售 [A]全部出售 [方向键]选择 [空格/回车]出海赶潮！', CANVAS_W * s / 2, CANVAS_H * s - 8 * s);
   }
 }
