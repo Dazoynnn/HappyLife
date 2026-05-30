@@ -25,6 +25,22 @@ export const WEATHER = {
   STORM: 'storm',
 };
 
+export const WEATHER_TABLE = {
+  sunny:   { id: 'sunny', name: '晴天', weight: 60, visibilityMod: 1.0, rareSpawnMod: 1.0, slipMod: 0 },
+  drizzle: { id: 'drizzle', name: '小雨', weight: 25, visibilityMod: 0.85, rareSpawnMod: 1.0, fishSpawnMod: 1.2, slipMod: 0 },
+  storm:   { id: 'storm', name: '暴雨', weight: 15, visibilityMod: 0.6, rareSpawnMod: 2.0, slipMod: 0.3, screenDarken: true },
+};
+
+export function rollWeather() {
+  const total = Object.values(WEATHER_TABLE).reduce((s, w) => s + w.weight, 0);
+  let r = Math.random() * total;
+  for (const [key, w] of Object.entries(WEATHER_TABLE)) {
+    r -= w.weight;
+    if (r <= 0) return key;
+  }
+  return 'sunny';
+}
+
 // ============ 收集物定义 ============
 export const COLLECTIBLES = {
   shell_fan: {
@@ -106,10 +122,46 @@ export const EQUIPMENT = {
     cost: 300, stats: { capacity: 16, maxWeight: 30 },
     description: '更大的竹篓，能装更多东西。',
   },
+  coral_pick: {
+    id: 'coral_pick', slot: 'tool', name: '珊瑚镐',
+    cost: 250, stats: { collectSpeed: 1.0, reefBonus: 2.0 },
+    description: '对礁石区收集效率+200%。',
+  },
+  tongs_bamboo: {
+    id: 'tongs_bamboo', slot: 'tool', name: '竹夹',
+    cost: 120, stats: { safeGrab: true },
+    description: '安全采集螃蟹/海胆，免疫夹伤和刺伤。',
+  },
+  boots_iron: {
+    id: 'boots_iron', slot: 'shoes', name: '铁头靴',
+    cost: 220, stats: { speedBonus: -15, spikeImmune: true },
+    description: '不受尖石伤害，移动-15%。',
+  },
+  headlamp: {
+    id: 'headlamp', slot: 'headlamp', name: '头灯',
+    cost: 180, stats: { visionBonus: 0.5 },
+    description: '洞穴和深水区视野+50%。',
+  },
 };
 
 // 初始装备
 export const STARTING_EQUIPMENT = ['shovel_wood'];
+
+// 沉船事件掉落表
+export const SHIPWRECK_LOOT = {
+  guaranteed: [{ id: 'coin_ancient', count: 20 }],
+  random: [
+    { id: 'pearl', count: 1, chance: 0.8 },
+    { id: 'shell_conch', count: 3, chance: 0.5 },
+    { id: 'starfish', count: 1, chance: 0.5 },
+    { id: 'coin_ancient', count: 5, chance: 0.7 },
+    { id: 'coin_ancient', count: 10, chance: 0.3 },
+  ],
+  equipmentDrop: ['shovel_iron', 'gloves_leather', 'shoes_grip', 'coral_pick', 'headlamp'],
+};
+
+// 礁石 tile 类型枚举
+export const ROCK_TILE_TYPES = ['rock_small', 'rock_medium', 'rock_large', 'rock_barnacle', 'rock_moss'];
 
 // ============ 背包默认值 ============
 export const DEFAULT_BACKPACK = { slots: 12, maxWeight: 20 };
