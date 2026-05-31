@@ -945,23 +945,23 @@ export class Game {
     ctx.fillStyle = 'rgba(0,0,0,0.4)';
     ctx.fillRect(0, 0, CANVAS_W * s, 24 * s);
 
-    // "?" 帮助按钮（左上角）
-    const helpX = 4 * s, helpY = 2 * s, helpS = 20 * s;
+    // "?" 帮助按钮（左上角，小号）
+    const helpS = 14 * s, helpX = 6 * s, helpY = 2 * s;
     ctx.fillStyle = '#d4a840';
     ctx.beginPath();
     ctx.arc(helpX + helpS / 2, helpY + helpS / 2, helpS / 2, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = '#2d2010';
-    ctx.font = `bold ${8 * s}px monospace`;
+    ctx.font = `bold ${5 * s}px monospace`;
     ctx.textAlign = 'center';
-    ctx.fillText('?', helpX + helpS / 2, helpY + helpS / 2 + 6 * s);
+    ctx.fillText('?', helpX + helpS / 2, helpY + helpS / 2 + 4 * s);
     this._helpBtn = { x: helpX, y: helpY, w: helpS, h: helpS };
 
     const moonPhase = MOON_PHASES[this.moonIndex % 8];
     ctx.fillStyle = '#f5f0e0';
     ctx.font = `${6 * s}px monospace`;
     ctx.textAlign = 'left';
-    ctx.fillText(`第 ${this.day} 天 | 月相: ${moonPhase}`, 10 * s, 16 * s);
+    ctx.fillText(`第 ${this.day} 天 | 月相: ${moonPhase}`, 38 * s, 16 * s);
 
     ctx.textAlign = 'right';
     ctx.fillText(`金币: ${this.inventory.gold} | 水族箱: ${this.inventory.aquariumCount}只 | 博物馆: ${this.inventory.museumCount}件`, CANVAS_W * s - 10 * s, 16 * s);
