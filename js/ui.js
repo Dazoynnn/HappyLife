@@ -36,7 +36,7 @@ export class UIManager {
     ctx.fillRect(0, 0, CANVAS_W * SCALE, 28 * SCALE);
 
     // 月相图标
-    const moonPhase = MOON_PHASES[moonIndex % 8];
+    const moonPhase = MOON_PHASES[moonIndex % MOON_PHASES.length];
     const moonIcon = this.moonIcons[moonPhase] || this.moonIcons['full'];
     ctx.drawImage(moonIcon, ox, oy, 20 * SCALE, 20 * SCALE);
     // 月相名称

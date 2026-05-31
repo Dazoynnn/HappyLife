@@ -1,6 +1,6 @@
 // shop.js — 村庄/商店场景
 
-import { CANVAS_W, CANVAS_H, SCALE, COLORS, EQUIPMENT, MOON_NAMES, MOON_PHASES } from './data.js';
+import { CANVAS_W, CANVAS_H, SCALE, COLORS, EQUIPMENT, MOON_NAMES, MOON_PHASES, MUSEUM_HALLS } from './data.js';
 
 export class ShopScene {
   constructor(inventory) {
@@ -319,20 +319,12 @@ export class ShopScene {
     const s = SCALE;
     // 展区切换
     if (!this._museumHall) this._museumHall = 'shell';
-    const halls = [
-      { id: 'shell', name: '贝类馆', exhibits: ['shell_fan','shell_conch','clam','starfish','pearl'],
-        names: ['扇贝壳','海螺壳','蛤蜊','海星','珍珠'], legacy: 'shell_mastery', legacyDesc: '贝类精通 (贝壳+25%)' },
-      { id: 'crustacean', name: '甲壳馆', exhibits: ['crab_sand','crab_rock','urchin','chiton','horseshoe_crab'],
-        names: ['沙蟹','石蟹','海胆','石鳖','鲎'], legacy: 'crustacean_immunity', legacyDesc: '甲壳免疫 (不受螃蟹/海胆伤害)' },
-      { id: 'fish', name: '鱼类馆', exhibits: ['seahorse','seadragon','goby','octopus_sm','nudibranch'],
-        names: ['海马','海龙','虾虎鱼','小章鱼','海蛞蝓'], legacy: 'weight_mastery', legacyDesc: '负重大师 (背包负重+10kg)' },
-    ];
-    const hall = halls.find(h => h.id === this._museumHall) || halls[0];
+    const hall = MUSEUM_HALLS.find(h => h.id === this._museumHall) || MUSEUM_HALLS[0];
 
     ctx.fillStyle = COLORS.ui_dark;
     ctx.font = `bold ${7 * s}px monospace`;
     ctx.textAlign = 'center';
-    const hallIdx = halls.findIndex(h => h.id === this._museumHall);
+    const hallIdx = MUSEUM_HALLS.findIndex(h => h.id === this._museumHall);
     ctx.fillText(`◀ 博物馆 — ${hall.name} ▶`, px + pw / 2, py + 16 * s);
 
     // 展位 — 上排3个 + 下排2个

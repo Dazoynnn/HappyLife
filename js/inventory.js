@@ -1,6 +1,6 @@
 // inventory.js — 背包和库存管理
 
-import { COLLECTIBLES, DEFAULT_BACKPACK } from './data.js';
+import { COLLECTIBLES, DEFAULT_BACKPACK, MUSEUM_HALLS } from './data.js';
 
 export class Inventory {
   constructor() {
@@ -151,49 +151,29 @@ export class Inventory {
 
   /** 威望重置 — 致伟大的海洋 */
   prestige(sectionId) {
-    const legacyMap = {
-      shell: 'shell_mastery',
-      crustacean: 'crustacean_immunity',
-      fish: 'weight_mastery',
-    };
-    const legacyId = legacyMap[sectionId];
-    if (!legacyId || this.legacies.includes(legacyId)) return null;
+    const hall = MUSEUM_HALLS.find(h => h.id === sectionId);
+    if (!hall || this.legacies.includes(hall.legacy)) return null;
 
-    // 各展区展品列表
-    const hallExhibits = {
-      shell: ['shell_fan', 'shell_conch', 'clam', 'starfish', 'pearl'],
-      crustacean: ['crab_sand', 'crab_rock', 'urchin', 'chiton', 'horseshoe_crab'],
-      fish: ['seahorse', 'seadragon', 'goby', 'octopus_sm', 'nudibranch'],
-    };
-    const exhibits = hallExhibits[sectionId] || [];
-    const donatedCount = exhibits.filter(e => this.museum.includes(e)).length;
-    if (donatedCount < exhibits.length) return null;
+    const donatedCount = hall.exhibits.filter(e => this.museum.includes(e)).length;
+    if (donatedCount < hall.exhibits.length) return null;
 
-    this.legacies.push(legacyId);
-    // 重置
+    this.legacies.push(hall.legacy);
     this.items = [];
     this.gold = 0;
     this.aquarium = [];
     this.seaPearlFragments = 0;
-    return legacyId;
+    return hall.legacy;
   }
 
-  /** 获取指定展区已捐赠数量 */
   getHallDonatedCount(sectionId) {
-    const hallExhibits = {
-      shell: ['shell_fan', 'shell_conch', 'clam', 'starfish', 'pearl'],
-      crustacean: ['crab_sand', 'crab_rock', 'urchin', 'chiton', 'horseshoe_crab'],
-      fish: ['seahorse', 'seadragon', 'goby', 'octopus_sm', 'nudibranch'],
-    };
-    const exhibits = hallExhibits[sectionId] || [];
-    return exhibits.filter(e => this.museum.includes(e)).length;
+    const hall = MUSEUM_HALLS.find(h => h.id === sectionId);
+    if (!hall) return 0;
+    return hall.exhibits.filter(e => this.museum.includes(e)).length;
   }
 
   getHallTotal(sectionId) {
-    const hallExhibits = {
-      shell: 5, crustacean: 5, fish: 5,
-    };
-    return hallExhibits[sectionId] || 0;
+    const hall = MUSEUM_HALLS.find(h => h.id === sectionId);
+    return hall ? hall.exhibits.length : 0;
   }
 
   hasLegacy(id) {

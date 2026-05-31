@@ -1,6 +1,6 @@
 // game.js — 游戏主循环和场景管理
 
-import { CANVAS_W, CANVAS_H, SCALE, TILE_SIZE, SCENE, MOON_PHASES, COLLECTIBLES, EQUIPMENT, rollWeather } from './data.js';
+import { CANVAS_W, CANVAS_H, SCALE, TILE_SIZE, SCENE, MOON_PHASES, COLLECTIBLES, EQUIPMENT, rollWeather, MUSEUM_HALLS } from './data.js';
 import { InputManager } from './input.js';
 import { Renderer } from './renderer.js';
 import { UIManager } from './ui.js';
@@ -64,8 +64,7 @@ export class Game {
     this.lastTime = 0;
     this.gameTime = 0;
 
-    // 出海冷却（返回后短暂冷却）
-    this.cooldownTimer = 0;
+    // 出海冷却（预留）
 
     // 尝试读档
     const loaded = this.loadGame();
@@ -86,7 +85,7 @@ export class Game {
 
     // 初始化潮汐
     const baseDuration = 240; // 4分钟
-    const moonPhase = MOON_PHASES[this.moonIndex % 8];
+    const moonPhase = MOON_PHASES[this.moonIndex % MOON_PHASES.length];
     const moonEffect = (moonPhase === 'new' || moonPhase === 'full') ? 1.3 :
                        (moonPhase === 'quarter2') ? 0.8 : 1.0;
     this.tide = new TideSystem(baseDuration);
@@ -680,13 +679,8 @@ export class Game {
           }
         }
         // 威望按钮（二次确认）
-        const hallDefs = {
-          shell: { exhibits: ['shell_fan','shell_conch','clam','starfish','pearl'], legacy: 'shell_mastery' },
-          crustacean: { exhibits: ['crab_sand','crab_rock','urchin','chiton','horseshoe_crab'], legacy: 'crustacean_immunity' },
-          fish: { exhibits: ['seahorse','seadragon','goby','octopus_sm','nudibranch'], legacy: 'weight_mastery' },
-        };
         const hallId = this.shop._museumHall || 'shell';
-        const hd = hallDefs[hallId];
+        const hd = MUSEUM_HALLS.find(h => h.id === hallId) || MUSEUM_HALLS[0];
         const exhibits = hd.exhibits;
         const donatedCount = exhibits.filter(e => this.inventory.museum.includes(e)).length;
         if (donatedCount >= exhibits.length && !this.inventory.hasLegacy(hd.legacy)) {
@@ -803,12 +797,8 @@ export class Game {
         this.shop._museumHall = halls[(idx + 1) % 3];
       }
       // 捐赠快捷键（根据当前展区）
-      const hallExhibits = {
-        shell: ['shell_fan','shell_conch','clam','starfish','pearl'],
-        crustacean: ['crab_sand','crab_rock','urchin','chiton','horseshoe_crab'],
-        fish: ['seahorse','seadragon','goby','octopus_sm','nudibranch'],
-      };
-      const curExhibits = hallExhibits[this.shop._museumHall || 'shell'] || [];
+      const curHall = MUSEUM_HALLS.find(h => h.id === (this.shop._museumHall || 'shell')) || MUSEUM_HALLS[0];
+      const curExhibits = curHall.exhibits;
       if (this.input.wasPressed('Digit1') && curExhibits[0]) this.inventory.donateItem(curExhibits[0]);
       if (this.input.wasPressed('Digit2') && curExhibits[1]) this.inventory.donateItem(curExhibits[1]);
       if (this.input.wasPressed('Digit3') && curExhibits[2]) this.inventory.donateItem(curExhibits[2]);
@@ -980,7 +970,7 @@ export class Game {
     ctx.fillText('?', helpX + helpS / 2, helpY + helpS / 2 + 4 * s);
     this._helpBtn = { x: helpX, y: helpY, w: helpS, h: helpS };
 
-    const moonPhase = MOON_PHASES[this.moonIndex % 8];
+    const moonPhase = MOON_PHASES[this.moonIndex % MOON_PHASES.length];
     ctx.fillStyle = '#f5f0e0';
     ctx.font = `${6 * s}px monospace`;
     ctx.textAlign = 'left';

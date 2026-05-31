@@ -297,6 +297,19 @@ export const BEACHES = {
   },
 };
 
+// ============ 博物馆展区定义（统一数据源） ============
+export const MUSEUM_HALLS = [
+  { id: 'shell', name: '贝类馆', legacy: 'shell_mastery', legacyDesc: '贝类精通 (贝壳+25%)',
+    exhibits: ['shell_fan','shell_conch','clam','starfish','pearl'],
+    names: ['扇贝壳','海螺壳','蛤蜊','海星','珍珠'] },
+  { id: 'crustacean', name: '甲壳馆', legacy: 'crustacean_immunity', legacyDesc: '甲壳免疫 (不受螃蟹/海胆伤害)',
+    exhibits: ['crab_sand','crab_rock','urchin','chiton','horseshoe_crab'],
+    names: ['沙蟹','石蟹','海胆','石鳖','鲎'] },
+  { id: 'fish', name: '鱼类馆', legacy: 'weight_mastery', legacyDesc: '负重大师 (背包负重+10kg)',
+    exhibits: ['seahorse','seadragon','goby','octopus_sm','nudibranch'],
+    names: ['海马','海龙','虾虎鱼','小章鱼','海蛞蝓'] },
+];
+
 // ============ 月相 ============
 export const MOON_PHASES = ['new', 'crescent', 'quarter', 'gibbous', 'full', 'gibbous2', 'quarter2', 'crescent2'];
 export const MOON_NAMES = {
