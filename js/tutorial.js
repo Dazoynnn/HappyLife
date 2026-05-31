@@ -20,11 +20,11 @@ export function drawTutorial(ctx) {
   ctx.fillStyle = 'rgba(0,0,0,0.75)';
   ctx.fillRect(0, 0, W, H);
 
-  // 白色面板
-  const pw = 560 * (s / 2); // 用绝对像素不用 scale
-  const ph = 420;
+  // 白色面板（加高到480避免底部重叠）
+  const pw = 580;
+  const ph = 480;
   const px = (W - pw) / 2;
-  const py = (H - ph) / 2;
+  const py = (H - ph) / 2 - 20;
   ctx.fillStyle = '#f5f0e0';
   ctx.fillRect(px, py, pw, ph);
   ctx.strokeStyle = '#b8a090';
@@ -37,7 +37,7 @@ export function drawTutorial(ctx) {
   ctx.textAlign = 'center';
   ctx.fillText('🌊 潮汐猎人 — 操作指南', px + pw / 2, py + 36);
 
-  // 内容
+  // 内容（行距20px，16行=320px，给足空间）
   const lines = [
     { t: '海滩操作', c: '#c04030' },
     { t: 'WASD    移动          Shift   奔跑', c: '#2d2010' },
@@ -52,8 +52,8 @@ export function drawTutorial(ctx) {
     { t: '', c: '#2d2010' },
     { t: '背包操作（海滩按Tab）', c: '#c04030' },
     { t: '方向键  选择物品    S  出售    A  水族箱    M  博物馆', c: '#2d2010' },
-    { t: '', c: '#2d2010' },
-    { t: '收集物可以出售赚钱、放入水族箱养殖、或捐给博物馆', c: '#888' },
+    { t: '', c: '#666' },
+    { t: '收集物可出售赚钱、放入水族箱养殖、或捐给博物馆', c: '#888' },
     { t: '博物馆展区完成可触发「致伟大的海洋」获永久遗产', c: '#888' },
   ];
 
@@ -66,9 +66,9 @@ export function drawTutorial(ctx) {
     y += 22;
   }
 
-  // 关闭提示
+  // 关闭提示（增加间距）
   ctx.fillStyle = '#c04030';
   ctx.font = 'bold 16px monospace';
-  const closeY = py + ph - 24;
+  const closeY = py + ph - 18;
   ctx.fillText('按 空格键 开始游戏', px + pw / 2, closeY);
 }
