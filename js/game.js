@@ -945,14 +945,40 @@ export class Game {
     ctx.fillStyle = 'rgba(0,0,0,0.4)';
     ctx.fillRect(0, 0, CANVAS_W * s, 24 * s);
 
-    // "?" 帮助按钮（左上角，小号）
-    const helpS = 14 * s, helpX = 6 * s, helpY = 2 * s;
-    ctx.fillStyle = '#d4a840';
+    // "?" 帮助按钮（左上角，竹简风格）
+    const helpS = 16 * s, helpX = 6 * s, helpY = 2 * s;
+    // 竹简底色圆角方形
+    ctx.fillStyle = '#c8b878';
     ctx.beginPath();
-    ctx.arc(helpX + helpS / 2, helpY + helpS / 2, helpS / 2, 0, Math.PI * 2);
+    const r = 3 * s;
+    ctx.moveTo(helpX + r, helpY);
+    ctx.lineTo(helpX + helpS - r, helpY);
+    ctx.arcTo(helpX + helpS, helpY, helpX + helpS, helpY + r, r);
+    ctx.lineTo(helpX + helpS, helpY + helpS - r);
+    ctx.arcTo(helpX + helpS, helpY + helpS, helpX + helpS - r, helpY + helpS, r);
+    ctx.lineTo(helpX + r, helpY + helpS);
+    ctx.arcTo(helpX, helpY + helpS, helpX, helpY + helpS - r, r);
+    ctx.lineTo(helpX, helpY + r);
+    ctx.arcTo(helpX, helpY, helpX + r, helpY, r);
+    ctx.closePath();
     ctx.fill();
-    ctx.fillStyle = '#2d2010';
-    ctx.font = `bold ${5 * s}px monospace`;
+    // 边框 — 深色竹纹
+    ctx.strokeStyle = '#8a7a4a';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    // 竹简编织横纹
+    ctx.strokeStyle = '#a89858';
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i < 3; i++) {
+      const ly = helpY + 4 * s + i * 4 * s;
+      ctx.beginPath();
+      ctx.moveTo(helpX + 2 * s, ly);
+      ctx.lineTo(helpX + helpS - 2 * s, ly);
+      ctx.stroke();
+    }
+    // "?" 文字 — 朱砂红毛笔色
+    ctx.fillStyle = '#c04030';
+    ctx.font = `bold ${7 * s}px monospace`;
     ctx.textAlign = 'center';
     ctx.fillText('?', helpX + helpS / 2, helpY + helpS / 2 + 4 * s);
     this._helpBtn = { x: helpX, y: helpY, w: helpS, h: helpS };
