@@ -361,15 +361,41 @@ export class ShopScene {
       ctx.lineWidth = donated ? 2 : 1;
       ctx.strokeRect(ex, ey, exW, exH);
 
-      ctx.fillStyle = COLORS.ui_dark;
-      ctx.font = `${5 * s}px monospace`;
-      ctx.textAlign = 'center';
-      ctx.fillText(donated ? hall.names[i] : '???', ex + exW / 2, ey + 24 * s);
+      if (donated) {
+        ctx.fillStyle = COLORS.ui_dark;
+        ctx.font = `${5 * s}px monospace`;
+        ctx.textAlign = 'center';
+        ctx.fillText(hall.names[i], ex + exW / 2, ey + 24 * s);
+      } else {
+        // 未捐赠：竹简风"? "占位
+        const qx = ex + exW / 2 - 10 * s, qy = ey + 8 * s, qs = 20 * s;
+        ctx.fillStyle = '#c8b878';
+        ctx.beginPath();
+        const qr = 3 * s;
+        ctx.moveTo(qx + qr, qy);
+        ctx.lineTo(qx + qs - qr, qy);
+        ctx.arcTo(qx + qs, qy, qx + qs, qy + qr, qr);
+        ctx.lineTo(qx + qs, qy + qs - qr);
+        ctx.arcTo(qx + qs, qy + qs, qx + qs - qr, qy + qs, qr);
+        ctx.lineTo(qx + qr, qy + qs);
+        ctx.arcTo(qx, qy + qs, qx, qy + qs - qr, qr);
+        ctx.lineTo(qx, qy + qr);
+        ctx.arcTo(qx, qy, qx + qr, qy, qr);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#8a7a4a';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.fillStyle = '#c04030';
+        ctx.font = `bold ${6 * s}px monospace`;
+        ctx.textAlign = 'center';
+        ctx.fillText('?', qx + qs / 2, qy + qs / 2 + 4 * s);
+      }
 
       if (!donated && this.inventory.items.some(it => it.id === hall.exhibits[i])) {
         ctx.fillStyle = COLORS.gold;
         ctx.font = `${4 * s}px monospace`;
-        ctx.fillText('可捐赠', ex + exW / 2, ey + 42 * s);
+        ctx.fillText('可捐赠', ex + exW / 2, ey + 52 * s);
       }
 
       // 存位置给点击检测
