@@ -325,7 +325,7 @@ export class ShopScene {
       { id: 'crustacean', name: '甲壳馆', exhibits: ['crab_sand','crab_rock','urchin','chiton','horseshoe_crab'],
         names: ['沙蟹','石蟹','海胆','石鳖','鲎'], legacy: 'crustacean_immunity', legacyDesc: '甲壳免疫 (不受螃蟹/海胆伤害)' },
       { id: 'fish', name: '鱼类馆', exhibits: ['seahorse','seadragon','goby','octopus_sm','nudibranch'],
-        names: ['海马','海龙','虾虎鱼','小章鱼','海蛞蝓'], legacy: 'fish_mastery', legacyDesc: '鱼类精通 (待定)' },
+        names: ['海马','海龙','虾虎鱼','小章鱼','海蛞蝓'], legacy: 'weight_mastery', legacyDesc: '负重大师 (背包负重+10kg)' },
     ];
     const hall = halls.find(h => h.id === this._museumHall) || halls[0];
 

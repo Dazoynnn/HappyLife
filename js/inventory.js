@@ -220,4 +220,40 @@ export class Inventory {
   resetBackpack() {
     this.items = [];
   }
+
+  /** 存档序列化 */
+  toJSON() {
+    return {
+      gold: this.gold,
+      slots: this.slots,
+      maxWeight: this.maxWeight,
+      aquarium: this.aquarium,
+      museum: this.museum,
+      legacies: this.legacies,
+      seaPearls: this.seaPearls,
+      seaPearlFragments: this.seaPearlFragments,
+      equippedTool: this.equippedTool,
+      equippedGloves: this.equippedGloves,
+      equippedShoes: this.equippedShoes,
+      equippedHeadlamp: this.equippedHeadlamp,
+    };
+  }
+
+  /** 从存档恢复 */
+  fromJSON(data) {
+    if (!data) return;
+    this.gold = data.gold ?? 50;
+    this.slots = data.slots ?? DEFAULT_BACKPACK.slots;
+    this.maxWeight = data.maxWeight ?? DEFAULT_BACKPACK.maxWeight;
+    this.aquarium = data.aquarium || [];
+    this.museum = data.museum || [];
+    this.legacies = data.legacies || [];
+    this.seaPearls = data.seaPearls || 0;
+    this.seaPearlFragments = data.seaPearlFragments || 0;
+    this.equippedTool = data.equippedTool || null;
+    this.equippedGloves = data.equippedGloves || null;
+    this.equippedShoes = data.equippedShoes || null;
+    this.equippedHeadlamp = data.equippedHeadlamp || null;
+    this.items = [];
+  }
 }

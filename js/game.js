@@ -14,6 +14,7 @@ import { ShopScene } from './shop.js';
 import { WeatherSystem } from './weather.js';
 import { ShipwreckEvent } from './events.js';
 import { AudioManager } from './audio.js';
+import { hasSeenTutorial, markTutorialSeen, drawTutorial } from './tutorial.js';
 
 export class Game {
   constructor(canvas) {
@@ -65,6 +66,12 @@ export class Game {
 
     // 出海冷却（返回后短暂冷却）
     this.cooldownTimer = 0;
+
+    // 尝试读档
+    const loaded = this.loadGame();
+
+    // 新手引导（首次加载无存档时显示）
+    this._showTutorial = !loaded && !hasSeenTutorial();
   }
 
   // ============ 场景切换 ============
@@ -144,6 +151,38 @@ export class Game {
     // 切换商店标签
     this.shop.tab = 'sell';
     this.shop.selectedSlot = -1;
+
+    // 自动存档
+    this.saveGame();
+  }
+
+  /** 存档到 localStorage */
+  saveGame() {
+    try {
+      const data = {
+        version: 1,
+        day: this.day,
+        moonIndex: this.moonIndex,
+        tripsCompleted: this.tripsCompleted,
+        inventory: this.inventory.toJSON(),
+      };
+      localStorage.setItem('tideHunter_save', JSON.stringify(data));
+    } catch (e) { /* 静默失败 */ }
+  }
+
+  /** 从 localStorage 读档 */
+  loadGame() {
+    try {
+      const raw = localStorage.getItem('tideHunter_save');
+      if (!raw) return false;
+      const data = JSON.parse(raw);
+      if (!data || data.version !== 1) return false;
+      this.day = data.day || 1;
+      this.moonIndex = data.moonIndex || 0;
+      this.tripsCompleted = data.tripsCompleted || 0;
+      if (data.inventory) this.inventory.fromJSON(data.inventory);
+      return true;
+    } catch (e) { return false; }
   }
 
   // ============ 主循环 ============
@@ -549,6 +588,15 @@ export class Game {
   }
 
   _updateVillage(dt) {
+    // 新手引导：任意按键关闭
+    if (this._showTutorial) {
+      if (this.input.anyKeyPressed()) {
+        this._showTutorial = false;
+        markTutorialSeen();
+      }
+      return;
+    }
+
     this.shop.update(dt);
     const s = SCALE; // = 2
 
@@ -632,7 +680,7 @@ export class Game {
         const hallDefs = {
           shell: { exhibits: ['shell_fan','shell_conch','clam','starfish','pearl'], legacy: 'shell_mastery' },
           crustacean: { exhibits: ['crab_sand','crab_rock','urchin','chiton','horseshoe_crab'], legacy: 'crustacean_immunity' },
-          fish: { exhibits: ['seahorse','seadragon','goby','octopus_sm','nudibranch'], legacy: 'fish_mastery' },
+          fish: { exhibits: ['seahorse','seadragon','goby','octopus_sm','nudibranch'], legacy: 'weight_mastery' },
         };
         const hallId = this.shop._museumHall || 'shell';
         const hd = hallDefs[hallId];
@@ -844,6 +892,11 @@ export class Game {
       this.shop._selectedBeach = this.currentBeach;
       this.shop.render(this.renderer.ctx);
       this._renderVillageHUD();
+
+      // 新手引导遮罩
+      if (this._showTutorial) {
+        drawTutorial(this.renderer.ctx);
+      }
     }
     this._updateCursor();
   }

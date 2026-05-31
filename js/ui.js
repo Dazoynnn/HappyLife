@@ -1,6 +1,6 @@
 // ui.js — HUD 和覆盖层 UI
 
-import { CANVAS_W, CANVAS_H, SCALE, MOON_NAMES, MOON_PHASES, COLORS } from './data.js';
+import { CANVAS_W, CANVAS_H, SCALE, MOON_NAMES, MOON_PHASES, COLORS, COLLECTIBLES } from './data.js';
 import { genHeartIcon, genStaminaIcon, genGoldIcon, genMoonIcon, genTideBarBg, getCollectibleSprite } from './sprites.js';
 
 export class UIManager {
@@ -231,9 +231,22 @@ export class UIManager {
       }
     }
 
+    // 物品描述（从COLLECTIBLES查找）
+    const descY = py + ph - 72 * s;
+    let descText = '选择一个物品查看详情';
+    if (slotSelected >= 0 && slotSelected < inventory.items.length) {
+      const selItem = inventory.items[slotSelected];
+      const def = COLLECTIBLES[selItem.id];
+      if (def?.description) descText = def.description;
+    }
+    ctx.fillStyle = descText.length > 20 ? '#888' : '#999';
+    ctx.font = `${4 * s}px monospace`;
+    ctx.textAlign = 'center';
+    ctx.fillText(descText, px + pw / 2, descY);
+
     // 底部按钮
-    const btnY1 = py + ph - 60 * s;
-    const btnY2 = py + ph - 32 * s;
+    const btnY1 = py + ph - 58 * s;
+    const btnY2 = py + ph - 30 * s;
     const btnW = (pw - 40 * s) / 2;
     const btnH = 26 * s;
 

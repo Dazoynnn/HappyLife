@@ -40,6 +40,10 @@ export class InputManager {
     return false;
   }
 
+  anyKeyPressed() {
+    return Object.keys(this.justPressed).length > 0;
+  }
+
   // 每帧结束时调用，清理单帧状态
   endFrame() {
     this.justPressed = {};
