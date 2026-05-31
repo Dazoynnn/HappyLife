@@ -588,9 +588,9 @@ export class Game {
   }
 
   _updateVillage(dt) {
-    // 新手引导：任意按键关闭
+    // 新手引导：按键或点击关闭
     if (this._showTutorial) {
-      if (this.input.anyKeyPressed()) {
+      if (this.input.anyKeyPressed() || this._consumeClick()) {
         this._showTutorial = false;
         markTutorialSeen();
       }
@@ -604,6 +604,12 @@ export class Game {
     const clicked = this._consumeClick();
     if (clicked) {
       const mx = this.mouseX, my = this.mouseY;
+
+      // "?" 帮助按钮
+      if (this._helpBtn && this._hitTest(this._helpBtn.x, this._helpBtn.y, this._helpBtn.w, this._helpBtn.h)) {
+        this._showTutorial = true;
+        return;
+      }
 
       // 五个建筑 (位置对应 shop._drawBuildings)
       const buildings = [
@@ -906,6 +912,10 @@ export class Game {
     let pointer = false;
 
     if (this.scene === SCENE.VILLAGE) {
+      // ? 帮助按钮
+      if (this._helpBtn && this._hitTest(this._helpBtn.x, this._helpBtn.y, this._helpBtn.w, this._helpBtn.h)) {
+        pointer = true;
+      }
       // 建筑
       const buildings = [
         [160*s, 380*s, 80*s, 60*s],
@@ -934,6 +944,18 @@ export class Game {
     // 顶部信息
     ctx.fillStyle = 'rgba(0,0,0,0.4)';
     ctx.fillRect(0, 0, CANVAS_W * s, 24 * s);
+
+    // "?" 帮助按钮（左上角）
+    const helpX = 4 * s, helpY = 2 * s, helpS = 20 * s;
+    ctx.fillStyle = '#d4a840';
+    ctx.beginPath();
+    ctx.arc(helpX + helpS / 2, helpY + helpS / 2, helpS / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#2d2010';
+    ctx.font = `bold ${8 * s}px monospace`;
+    ctx.textAlign = 'center';
+    ctx.fillText('?', helpX + helpS / 2, helpY + helpS / 2 + 6 * s);
+    this._helpBtn = { x: helpX, y: helpY, w: helpS, h: helpS };
 
     const moonPhase = MOON_PHASES[this.moonIndex % 8];
     ctx.fillStyle = '#f5f0e0';
