@@ -194,17 +194,18 @@ export function genPlayerWalk(dir, frame = 0) {
   if (cache.has(key)) return cache.get(key);
   const c = createCanvas(20, 20);
   const ctx = c.getContext('2d');
-  const offsets = [
-    [0, 0, 1, 0],    // frame 0
-    [1, 0, -1, 0],   // frame 1
-    [0, 0, 0, -1],   // frame 2
-    [-1, 0, 0, 1],   // frame 3
-  ];
-  const [lx, ly, rx, ry] = offsets[frame % 4];
-  // Leg swing and arm swing
+  // 方向微偏移（比奔跑轻微）
+  const lean = 1;
+  const dirOff = { down: [0, lean], up: [0, -lean], left: [-lean, 0], right: [lean, 0] };
+  const [dx, dy] = dirOff[dir] || [0, 0];
   const legBob = frame % 2 === 0 ? 0 : -1;
-  drawCharacterBase(ctx, 0, 0, 0, legBob);
-  // 运动中的手臂摆动用 offset 表示
+  drawCharacterBase(ctx, dx, dy, 0, legBob);
+  // 方向指示线（用斗笠偏移暗示朝向）
+  if (dir === 'up') {
+    // 朝上：斗笠看起来稍小（透视）
+    ctx.fillStyle = COLORS.hat_dark;
+    ctx.fillRect(4, 3, 12, 1);
+  }
   cache.set(key, c);
   return c;
 }

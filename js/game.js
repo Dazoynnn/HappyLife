@@ -156,6 +156,17 @@ export class Game {
     this.saveGame();
   }
 
+  /** 随机丢弃背包中一半物品（满潮/死亡惩罚） */
+  _dropHalfItems() {
+    const items = this.player.items;
+    for (let i = items.length - 1; i >= 0; i--) {
+      if (Math.random() < 0.5) {
+        this.player.currentWeight -= items[i].weight * items[i].count;
+        items.splice(i, 1);
+      }
+    }
+  }
+
   /** 存档到 localStorage */
   saveGame() {
     try {
@@ -403,14 +414,7 @@ export class Game {
     // 满潮强制返回
     if (this.tide.progress >= 1.0) {
       this.shop.showMessage('潮水已满！被冲回岸边，丢失一半战利品...');
-      // 随机丢弃一半物品
-      const items = this.player.items;
-      for (let i = items.length - 1; i >= 0; i--) {
-        if (Math.random() < 0.5) {
-          this.player.currentWeight -= items[i].weight * items[i].count;
-          items.splice(i, 1);
-        }
-      }
+      this._dropHalfItems();
       this.returnToVillage();
       return;
     }
@@ -486,14 +490,7 @@ export class Game {
     // 玩家死亡
     if (this.player.hp <= 0) {
       this.shop.showMessage('你昏迷了，被海浪冲回岸边...');
-      // 丢一半物品
-      const items = this.player.items;
-      for (let i = items.length - 1; i >= 0; i--) {
-        if (Math.random() < 0.5) {
-          this.player.currentWeight -= items[i].weight * items[i].count;
-          items.splice(i, 1);
-        }
-      }
+      this._dropHalfItems();
       this.returnToVillage();
       return;
     }

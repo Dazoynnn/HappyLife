@@ -216,9 +216,11 @@ export class Renderer {
     for (let x = 0; x < CANVAS_W; x += 2) {
       const waveY = waterLinePx + Math.sin(x * 0.1 + this.waveTime) * 2;
       ctx.fillRect(x, waveY, 2, 1);
-      // 浪花飞沫
-      if (Math.random() < 0.03) {
-        ctx.fillRect(x + (Math.random() - 0.5) * 4, waveY - 2, 1, 1);
+      // 浪花飞沫（确定性伪随机，基于位置+时间）
+      const hash = (x * 137 + Math.floor(this.waveTime * 60)) % 100;
+      if (hash < 3) {
+        const fx = x + ((hash * 7) % 8 - 4);
+        ctx.fillRect(fx, waveY - 2, 1, 1);
       }
     }
   }
